@@ -1,0 +1,5 @@
+/**:
+  ros__parameters:
+    servo:
+      id1: 500
+      duration: 1
