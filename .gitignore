@@ -1,2 +1,7 @@
 # IDE 配置文件
 .vscode/
+
+# Local build / debug artifacts
+jetson_build_status.txt
+jetson_colcon_build.exit
+jetson_colcon_build.log

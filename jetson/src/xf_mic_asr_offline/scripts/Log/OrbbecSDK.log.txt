@@ -1,0 +1,550 @@
+[01/08 09:35:38.240518][debug][3971][Context.cpp:30] Context creating, work_dir=/home/ubuntu/ros2_ws/src/xf_mic_asr_offline/scripts
+[01/08 09:35:38.240582][debug][3971][Context.cpp:49] Config file version=1.1
+[01/08 09:35:38.240604][debug][3971][FrameBufferManager.cpp:23] Max global frame buffer size updated! size=2048.000MB
+[01/08 09:35:38.240615][info][3971][Context.cpp:68] Context created with config: /home/ubuntu/third_party_ros2/orbbec_ws/install/orbbec_camera/share/orbbec_camera/config/OrbbecSDKConfig_v1.0.xml
+[01/08 09:35:38.240643][info][3971][Context.cpp:73] Work directory=/home/ubuntu/ros2_ws/src/xf_mic_asr_offline/scripts, SDK version=v1.10.11-20240718-d4d1179
+[01/08 09:35:38.240654][debug][3971][DeviceManager.cpp:30] DeviceManager init ...
+[01/08 09:35:38.240657][info][3971][LinuxPal.cpp:32] createObPal: create LinuxPal!
+[01/08 09:35:38.241662][debug][3971][DeviceManager.cpp:34] Enable USB Device Enumerator ...
+[01/08 09:35:38.330140][debug][3971][EnumeratorLibusb.cpp:321] queryDevicesInfo done!
+[01/08 09:35:38.330183][debug][3971][UsbDeviceEnumerator.cpp:163] Current usb device port list:
+[01/08 09:35:38.330195][debug][3971][UsbDeviceEnumerator.cpp:166]  - 3-2.2-4.0 | USB Camera
+[01/08 09:35:38.330198][debug][3971][UsbDeviceEnumerator.cpp:166]  - 3-2.1-3.0 | Orbbec(R) Astra(TM) 3D Camera(F) Depth
+[01/08 09:35:38.330200][debug][3971][UsbDeviceEnumerator.cpp:166]  - 3-2.1-3.1 | Orbbec(R) Astra(TM) Audio Devive
+[01/08 09:35:38.330232][warning][3971][OpenNIDeviceInfo.cpp:186] New openni device matched.
+[01/08 09:35:38.330348][info][3971][LinuxPal.cpp:143] Create PollingDeviceWatcher!
+[01/08 09:35:38.330393][debug][3971][UsbDeviceEnumerator.cpp:71] Found 1 device(s):
+[01/08 09:35:38.330399][debug][3971][UsbDeviceEnumerator.cpp:74]   - Name: Astra Pro Plus, PID: 0x060F, SN/ID: , connection: USB2.0
+[01/08 09:35:38.330408][info][3971][DeviceManager.cpp:15] Current found device(s): (1)
+[01/08 09:35:38.330415][info][3971][DeviceManager.cpp:24] 	- Name: Astra Pro Plus, PID: 0x060f, SN/ID: , Connection: USB2.0
+[01/08 09:35:38.330418][debug][3971][DeviceManager.cpp:52] DeviceManager construct done!
+[01/08 09:35:38.338354][info][3971][DeviceManager.cpp:304] Enable net device enumeration: false
+[01/08 09:35:38.439840][debug][4064][DeviceManager.cpp:109] DeviceManager  createDevice...
+[01/08 09:35:38.439888][debug][4064][UsbDeviceEnumerator.cpp:291] UsbDeviceEnumerator createDevice...
+[01/08 09:35:38.443323][info][4064][OpenNIHostProtocol.cpp:567] Hardware versions: FW=5.8.22 (14), HW=0, Chip=6, Sensor=0, SYS=12
+[01/08 09:35:38.444376][error][4064][OpenNIHostProtocol.cpp:584] Get usb core type failed!
+[01/08 09:35:38.444417][debug][4064][OpenNIHostProtocol.cpp:665] Requesting KeepAlive...
+[01/08 09:35:38.446252][debug][4064][OpenNIHostProtocol.cpp:672] Got KeepAlive Reply.
+[01/08 09:35:38.467804][debug][4064][OpenNIHostProtocol.cpp:665] Requesting KeepAlive...
+[01/08 09:35:38.469196][debug][4064][OpenNIHostProtocol.cpp:672] Got KeepAlive Reply.
+[01/08 09:35:38.469284][debug][4064][OpenNIHostProtocol.cpp:690] Getting the fixed params...
+[01/08 09:35:38.473217][debug][4064][OpenNIHostProtocol.cpp:730] Reading sensor serial number...
+[01/08 09:35:38.475202][info][4064][OpenNISensorFirmware.cpp:1185] Sensor serial number:ACR874300B7
+[01/08 09:35:38.476774][debug][4064][OpenNIHostProtocol.cpp:802] Reading sensor platform string...
+[01/08 09:35:38.480704][info][4064][OpenNISensorFirmware.cpp:1213] Firmware version RD2510
+[01/08 09:35:38.484282][info][4064][OpenNISensorFirmware.cpp:1219] Device frequency 50
+[01/08 09:35:38.542543][debug][4064][OpenNISensorFirmware.cpp:1231] OpenNI camera params read.
+[01/08 09:35:38.545019][debug][4064][OpenNISensorFirmware.cpp:2053] OpenNI camera params read end.
+[01/08 09:35:38.546128][error][4064][OpenNIHostProtocol.cpp:952] Support sub cmd error!
+[01/08 09:35:38.546160][warning][4064][OpenNISensorFirmware.cpp:153] OpenNI2 camera don't support Watchdog function!
+[01/08 09:35:38.546167][debug][4064][OpenNISensorIO.cpp:29] Opening endpoint 0x81 for depth...
+[01/08 09:35:38.546178][debug][4064][OpenNISensorIO.cpp:41] Depth endpoint(0x81) was successfully opened.
+[01/08 09:35:38.546190][debug][4064][OpenNISensorIO.cpp:48] Opening endpoint 0x82 for IR...
+[01/08 09:35:38.546193][debug][4064][OpenNISensorIO.cpp:54] IR endpoint(0x82) was successfully opened.
+[01/08 09:35:38.546195][debug][4064][OpenNISensorIO.cpp:60] Opening endpoint 0x84  for image...
+[01/08 09:35:38.546196][debug][4064][OpenNISensorIO.cpp:65] Image endpoint is not supported...
+[01/08 09:35:38.546198][debug][4064][OpenNISensorIO.cpp:75] Opening endpoint 0x83 for misc...
+[01/08 09:35:38.546199][debug][4064][OpenNISensorIO.cpp:80] Misc endpoint is not supported...
+[01/08 09:35:38.546201][debug][4064][OpenNISensorIO.cpp:87] Endpoints open end.
+[01/08 09:35:38.546222][debug][4064][VendorCommand.cpp:205] VendorCommand constructor 7ffe90003ae0
+[01/08 09:35:38.546228][debug][4064][OpenNIDevice.cpp:190] init sensor map start!
+[01/08 09:35:38.546235][debug][4064][OpenNIDevice.cpp:204] init sensor map done!
+[01/08 09:35:38.546275][debug][4064][PropertyAccessor.cpp:50] get firmware data success! propertyId: 1000, dataLen: 164
+[01/08 09:35:38.546287][info][4064][AbstractDevice.cpp:121] 	- Firmware version: RD2510
+[01/08 09:35:38.546398][debug][4064][OpenNIDevice.cpp:244] Init depth process param start!
+[01/08 09:35:38.546418][debug][4064][OpenNIDevice.cpp:267] Device baseline: 7.5, zpd: 130, zpps: 0.11267130821943283
+[01/08 09:35:38.546423][debug][4064][OpenNIDevice.cpp:290] Init depth process param done!
+[01/08 09:35:38.546430][info][4064][OpenNIDevice.cpp:37] OpenNI device created! PID: 0x060f, SN: ACR874300B7
+[01/08 09:35:38.546433][debug][4064][UsbDeviceEnumerator.cpp:359] Device created successfully! Name: Astra Pro Plus, PID: 0x060f, SN/ID: 
+[01/08 09:35:38.546437][info][4064][DeviceManager.cpp:150] Device created successfully! Name: Astra Pro Plus, PID: 0x060f, SN/ID: 
+[01/08 09:35:38.546584][debug][4064][FrameProcessingBlock.cpp:26] Block created with frame queue size: 10
+[01/08 09:35:38.546619][debug][4064][FrameProcessingBlock.cpp:26] Block created with frame queue size: 10
+[01/08 09:35:38.574809][debug][4064][FrameProcessor.cpp:84] FrameProcessor init with 2 blocks! @140731314677488
+[01/08 09:35:38.574883][debug][4064][FrameProcessingBlock.cpp:26] Block created with frame queue size: 10
+[01/08 09:35:38.574893][debug][4064][FrameProcessor.cpp:92]  - block: FrameUnpacker, status: enable
+[01/08 09:35:38.574906][debug][4064][FrameProcessingBlock.cpp:26] Block created with frame queue size: 10
+[01/08 09:35:38.574910][debug][4064][FrameProcessor.cpp:92]  - block: FrameMirror, status: disable
+[01/08 09:35:38.574919][info][4064][OpenNIDevice.cpp:509] IR sensor has been created!
+[01/08 09:35:38.574946][debug][4064][OpenNIVideoSensor.cpp:857] Query stream profile! size= 5, sensorType=OB_SENSOR_IR
+[01/08 09:35:38.574961][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 640, height: 480, fps: 30}
+[01/08 09:35:38.574964][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 320, height: 240, fps: 30}
+[01/08 09:35:38.574966][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 1280, height: 1024, fps: 7}
+[01/08 09:35:38.574968][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 1280, height: 960, fps: 7}
+[01/08 09:35:38.574970][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 1280, height: 720, fps: 7}
+[01/08 09:35:38.575010][debug][4064][LinuxPal.cpp:269] Uvc backend have been set to V4L2(2)
+[01/08 09:35:38.575080][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video37
+[01/08 09:35:38.575366][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video37
+[01/08 09:35:38.575378][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video27
+[01/08 09:35:38.575620][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video27
+[01/08 09:35:38.575640][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video35
+[01/08 09:35:38.575847][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video35
+[01/08 09:35:38.575854][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video25
+[01/08 09:35:38.576043][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video25
+[01/08 09:35:38.576047][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video33
+[01/08 09:35:38.576233][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video33
+[01/08 09:35:38.576237][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video23
+[01/08 09:35:38.576423][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video23
+[01/08 09:35:38.576427][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video31
+[01/08 09:35:38.576613][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video31
+[01/08 09:35:38.576617][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video21
+[01/08 09:35:38.576800][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video21
+[01/08 09:35:38.576804][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video1
+[01/08 09:35:38.577008][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video28
+[01/08 09:35:38.577211][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video28
+[01/08 09:35:38.577216][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video36
+[01/08 09:35:38.577406][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video36
+[01/08 09:35:38.577411][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video26
+[01/08 09:35:38.577597][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video26
+[01/08 09:35:38.577601][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video34
+[01/08 09:35:38.577784][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video34
+[01/08 09:35:38.577787][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video24
+[01/08 09:35:38.577968][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video24
+[01/08 09:35:38.577972][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video32
+[01/08 09:35:38.578153][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video32
+[01/08 09:35:38.578156][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video22
+[01/08 09:35:38.578338][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video22
+[01/08 09:35:38.578343][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video30
+[01/08 09:35:38.578528][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video30
+[01/08 09:35:38.578532][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video20
+[01/08 09:35:38.578713][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video20
+[01/08 09:35:38.578718][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video0
+[01/08 09:35:38.587654][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video29
+[01/08 09:35:38.587945][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video29
+[01/08 09:35:38.587956][debug][4064][ObV4lUvcDevicePort.cpp:96] Found video4linux: video19
+[01/08 09:35:38.588157][debug][4064][ObV4lUvcDevicePort.cpp:146] Cannot find busnum/devnum for /dev/video19
+[01/08 09:35:38.588211][debug][4064][ObV4lUvcDevicePort.cpp:355] Opened: /dev/video0
+[01/08 09:35:38.588222][debug][4064][ObV4lUvcDevicePort.cpp:343] Opened metadata dev: /dev/video0
+[01/08 09:35:38.588225][debug][4064][ObV4lUvcDevicePort.cpp:364] V4L device port created for 3-2.2-4.0 with 1 v4l2 device
+[01/08 09:35:38.588229][debug][4064][LinuxPal.cpp:96] UVC device have been create with V4L2 backend! dev: 3-2.2-4, inf: 3-2.2-4.0
+[01/08 09:35:38.588237][debug][4064][FrameProcessor.cpp:84] FrameProcessor init with 1 blocks! @140731314605664
+[01/08 09:35:38.588258][debug][4064][FrameProcessingBlock.cpp:26] Block created with frame queue size: 10
+[01/08 09:35:38.588271][debug][4064][FrameProcessor.cpp:92]  - block: FormatConverter, status: disable
+[01/08 09:35:38.588288][debug][4064][VideoSensor.cpp:252] VideoSensor construct!
+[01/08 09:35:38.588302][debug][4064][VideoSensor.cpp:263] stream profile size= 9, SensorType=OB_SENSOR_COLOR
+[01/08 09:35:38.588309][debug][4064][VideoSensor.cpp:265]  - {type: OB_STREAM_COLOR, format: OB_FORMAT_MJPG, width: 640, height: 480, fps: 30}
+[01/08 09:35:38.588312][debug][4064][VideoSensor.cpp:265]  - {type: OB_STREAM_COLOR, format: OB_FORMAT_MJPG, width: 1920, height: 1080, fps: 30}
+[01/08 09:35:38.588314][debug][4064][VideoSensor.cpp:265]  - {type: OB_STREAM_COLOR, format: OB_FORMAT_MJPG, width: 1280, height: 720, fps: 30}
+[01/08 09:35:38.588316][debug][4064][VideoSensor.cpp:265]  - {type: OB_STREAM_COLOR, format: OB_FORMAT_RGB888, width: 1920, height: 1080, fps: 30}
+[01/08 09:35:38.588318][debug][4064][VideoSensor.cpp:265]  - {type: OB_STREAM_COLOR, format: OB_FORMAT_RGB888, width: 1280, height: 720, fps: 30}
+[01/08 09:35:38.588321][debug][4064][VideoSensor.cpp:265]  - {type: OB_STREAM_COLOR, format: OB_FORMAT_RGB888, width: 640, height: 480, fps: 30}
+[01/08 09:35:38.588323][debug][4064][VideoSensor.cpp:265]  - {type: OB_STREAM_COLOR, format: OB_FORMAT_BGRA, width: 1920, height: 1080, fps: 30}
+[01/08 09:35:38.588326][debug][4064][VideoSensor.cpp:265]  - {type: OB_STREAM_COLOR, format: OB_FORMAT_BGRA, width: 1280, height: 720, fps: 30}
+[01/08 09:35:38.588328][debug][4064][VideoSensor.cpp:265]  - {type: OB_STREAM_COLOR, format: OB_FORMAT_BGRA, width: 640, height: 480, fps: 30}
+[01/08 09:35:38.588335][debug][4064][VideoSensor.cpp:278] VideoSensor created, @OB_SENSOR_COLOR
+[01/08 09:35:38.588337][info][4064][OpenNIDevice.cpp:460] Color sensor has been created!
+[01/08 09:35:38.588366][debug][4064][FrameProcessor.cpp:84] FrameProcessor init with 5 blocks! @140731314651440
+[01/08 09:35:38.588374][debug][4064][FrameProcessingBlock.cpp:26] Block created with frame queue size: 10
+[01/08 09:35:38.588377][debug][4064][FrameProcessor.cpp:92]  - block: FrameUnpacker, status: enable
+[01/08 09:35:38.588381][debug][4064][FrameProcessingBlock.cpp:26] Block created with frame queue size: 10
+[01/08 09:35:38.588383][debug][4064][FrameProcessor.cpp:92]  - block: FrameSoftFilter, status: enable
+[01/08 09:35:38.588387][debug][4064][FrameProcessingBlock.cpp:26] Block created with frame queue size: 10
+[01/08 09:35:38.588390][debug][4064][FrameProcessor.cpp:92]  - block: Disparity2DepthConverter, status: enable
+[01/08 09:35:38.588394][debug][4064][FrameProcessingBlock.cpp:26] Block created with frame queue size: 10
+[01/08 09:35:38.588397][debug][4064][FrameProcessor.cpp:92]  - block: D2CFilter, status: disable
+[01/08 09:35:38.588400][debug][4064][FrameProcessingBlock.cpp:26] Block created with frame queue size: 10
+[01/08 09:35:38.588403][debug][4064][FrameProcessor.cpp:92]  - block: PostProcessFilter, status: disable
+[01/08 09:35:38.588587][info][4064][OpenNIDevice.cpp:374] Depth sensor has been created!
+[01/08 09:35:38.588621][debug][4064][OpenNIVideoSensor.cpp:857] Query stream profile! size= 8, sensorType=OB_SENSOR_DEPTH
+[01/08 09:35:38.588630][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 640, height: 480, fps: 30}
+[01/08 09:35:38.588634][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 160, height: 120, fps: 30}
+[01/08 09:35:38.588636][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 320, height: 240, fps: 30}
+[01/08 09:35:38.588638][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 1280, height: 1024, fps: 7}
+[01/08 09:35:38.588641][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 160, height: 120, fps: 30}
+[01/08 09:35:38.588643][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 320, height: 240, fps: 30}
+[01/08 09:35:38.588645][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 640, height: 480, fps: 30}
+[01/08 09:35:38.588665][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 1280, height: 1024, fps: 7}
+[01/08 09:35:38.596361][debug][4064][PropertyAccessor.cpp:17] set property value success! propertyId: 2, value: {intValue: 1, floatValue: 1.4013e-45}
+[01/08 09:35:38.596445][debug][4064][OpenNISensorParams.cpp:110] set property DepthMirror(0)
+[01/08 09:35:38.597523][debug][4064][OpenNISensorParams.cpp:121] DepthMirror(0)was successfully set.
+[01/08 09:35:38.597584][debug][4064][PropertyAccessor.cpp:17] set property value success! propertyId: 14, value: {intValue: 0, floatValue: 0}
+[01/08 09:35:38.597612][debug][4064][FrameProcessor.cpp:204] setPropertyValue id=18, value={intValue: 0, floatValue: 0}
+[01/08 09:35:38.597624][debug][4064][PropertyAccessor.cpp:17] set property value success! propertyId: 18, value: {intValue: 0, floatValue: 0}
+[01/08 09:35:38.597639][debug][4064][PropertyAccessor.cpp:17] set property value success! propertyId: 24, value: {intValue: 1, floatValue: 1.4013e-45}
+[01/08 09:35:38.597691][error][4064][ObV4lUvcDevicePort.cpp:828] set 2000 xioctl(VIDIOC_S_CTRL) failed, Invalid argument
+[01/08 09:35:38.597707][debug][4064][PropertyAccessor.cpp:17] set property value success! propertyId: 2000, value: {intValue: 1, floatValue: 1.4013e-45}
+[01/08 09:35:38.599176][debug][4064][PropertyAccessor.cpp:17] set property value success! propertyId: 2003, value: {intValue: 1, floatValue: 1.4013e-45}
+[01/08 09:35:38.599249][debug][4064][PropertyAccessor.cpp:28] get property value success! propertyId: 40, value: {intValue: 16, floatValue: 2.24208e-44}
+[01/08 09:35:38.599391][debug][4064][PropertyAccessor.cpp:17] set property value success! propertyId: 40, value: {intValue: 8, floatValue: 1.12104e-44}
+[01/08 09:35:38.599413][debug][4064][PropertyAccessor.cpp:28] get property value success! propertyId: 40, value: {intValue: 8, floatValue: 1.12104e-44}
+[01/08 09:35:38.599467][debug][4064][PropertyAccessor.cpp:28] get property value success! propertyId: 41, value: {intValue: 480, floatValue: 6.72623e-43}
+[01/08 09:35:38.599522][debug][4064][PropertyAccessor.cpp:17] set property value success! propertyId: 41, value: {intValue: 100, floatValue: 1.4013e-43}
+[01/08 09:35:38.599542][debug][4064][PropertyAccessor.cpp:28] get property value success! propertyId: 41, value: {intValue: 100, floatValue: 1.4013e-43}
+[01/08 09:35:38.599846][debug][4064][OpenNIVideoSensor.cpp:857] Query stream profile! size= 8, sensorType=OB_SENSOR_DEPTH
+[01/08 09:35:38.599896][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 640, height: 480, fps: 30}
+[01/08 09:35:38.599903][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 160, height: 120, fps: 30}
+[01/08 09:35:38.599906][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 320, height: 240, fps: 30}
+[01/08 09:35:38.599908][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 1280, height: 1024, fps: 7}
+[01/08 09:35:38.599911][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 160, height: 120, fps: 30}
+[01/08 09:35:38.599914][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 320, height: 240, fps: 30}
+[01/08 09:35:38.599916][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 640, height: 480, fps: 30}
+[01/08 09:35:38.599919][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 1280, height: 1024, fps: 7}
+[01/08 09:35:38.600414][debug][4064][OpenNIVideoSensor.cpp:857] Query stream profile! size= 5, sensorType=OB_SENSOR_IR
+[01/08 09:35:38.600443][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 640, height: 480, fps: 30}
+[01/08 09:35:38.600459][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 320, height: 240, fps: 30}
+[01/08 09:35:38.600463][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 1280, height: 1024, fps: 7}
+[01/08 09:35:38.600465][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 1280, height: 960, fps: 7}
+[01/08 09:35:38.600468][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 1280, height: 720, fps: 7}
+[01/08 09:35:39.675731][debug][4064][Pipeline.cpp:29] Pipeline init ...
+[01/08 09:35:39.675891][debug][4064][Pipeline.cpp:168] loadFrameQueueSizeConfig() config queue size: 10
+[01/08 09:35:39.675906][warning][4064][ObException.cpp:5] Current device does not support frame sync!
+[01/08 09:35:39.675954][warning][4064][Pipeline.cpp:45] Execute failure! A libobsensor_exception has occurred!
+	 - where:45#Pipeline
+	 - msg:Current device does not support frame sync!
+	 - type:N11libobsensor31unsupported_operation_exceptionE
+[01/08 09:35:39.676022][info][4064][Pipeline.cpp:47] Pipeline created with device: {name: Astra Pro Plus, sn: ACR874300B7}, @0x7FFE90320E70
+[01/08 09:35:39.676267][debug][4064][Pipeline.cpp:227] Pipeline start() start!
+[01/08 09:35:39.676279][info][4064][Pipeline.cpp:188] Check and set config start!
+[01/08 09:35:39.676290][debug][4064][OpenNIVideoSensor.cpp:857] Query stream profile! size= 8, sensorType=OB_SENSOR_DEPTH
+[01/08 09:35:39.676297][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 640, height: 480, fps: 30}
+[01/08 09:35:39.676299][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 160, height: 120, fps: 30}
+[01/08 09:35:39.676314][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 320, height: 240, fps: 30}
+[01/08 09:35:39.676319][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y11, width: 1280, height: 1024, fps: 7}
+[01/08 09:35:39.676321][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 160, height: 120, fps: 30}
+[01/08 09:35:39.676324][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 320, height: 240, fps: 30}
+[01/08 09:35:39.676326][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 640, height: 480, fps: 30}
+[01/08 09:35:39.676329][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_DEPTH, format: OB_FORMAT_Y12, width: 1280, height: 1024, fps: 7}
+[01/08 09:35:39.676335][debug][4064][OpenNIVideoSensor.cpp:857] Query stream profile! size= 5, sensorType=OB_SENSOR_IR
+[01/08 09:35:39.676338][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 640, height: 480, fps: 30}
+[01/08 09:35:39.676341][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 320, height: 240, fps: 30}
+[01/08 09:35:39.676343][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 1280, height: 1024, fps: 7}
+[01/08 09:35:39.676345][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 1280, height: 960, fps: 7}
+[01/08 09:35:39.676347][debug][4064][OpenNIVideoSensor.cpp:859]  - {type: OB_STREAM_IR, format: OB_FORMAT_Y10, width: 1280, height: 720, fps: 7}
+[01/08 09:35:39.676354][info][4064][Pipeline.cpp:223] Check and set config done!
+[01/08 09:35:39.677458][debug][4064][PropertyAccessor.cpp:28] get property value success! propertyId: 14, value: {intValue: 0, floatValue: 0}
+[01/08 09:35:39.681248][debug][4064][PropertyAccessor.cpp:17] set property value success! propertyId: 63, value: {intValue: 0, floatValue: 0}
+[01/08 09:35:39.681300][debug][4064][FrameProcessingBlockManager.cpp:75]  FrameProcessingBlockManager started, 0 blocks contained!
+[01/08 09:35:39.681303][info][4064][Pipeline.cpp:288] Try to start streams!
+[01/08 09:35:39.681316][debug][4064][FrameMemoryPool.cpp:35] FrameMemoryPool created!
+[01/08 09:35:39.681326][debug][4064][FrameBufferManager.hpp:65] FrameBufferManager created! frame type:N11libobsensor10DepthFrameE, obj addr:0x7ffe902d1ae0, frame obj total size:0.403MB
+[01/08 09:35:39.681328][debug][4064][FrameMemoryPool.cpp:60] DepthFrame bufferManager created!
+[01/08 09:35:39.681356][debug][4064][OpenNISensorStreams.cpp:79] Firmware stream Depth processor was replaced.
+[01/08 09:35:39.681372][debug][4064][FrameProcessor.cpp:138] Frame processor active blocks chain update: input ->FrameUnpacker -> FrameSoftFilter -> Disparity2DepthConverter -> output
+[01/08 09:35:39.681375][debug][4064][FrameProcessor.cpp:149] FrameProcessor started, 5 blocks contained!
+[01/08 09:35:39.681379][debug][4064][OpenNIVideoSensor.cpp:767] Creating USB Depth read thread... 
+[01/08 09:35:39.681382][debug][4064][OpenNIUSBLinux.cpp:112] Starting a USB read thread...
+[01/08 09:35:39.683362][debug][4064][OpenNISensorParams.cpp:110] set property DepthFormat(3)
+[01/08 09:35:39.684417][debug][4064][OpenNISensorParams.cpp:121] DepthFormat(3)was successfully set.
+[01/08 09:35:39.684447][debug][4064][OpenNISensorParams.cpp:110] set property DepthResolution(1)
+[01/08 09:35:39.686417][debug][4064][OpenNISensorParams.cpp:121] DepthResolution(1)was successfully set.
+[01/08 09:35:39.686430][debug][4064][OpenNISensorParams.cpp:110] set property DepthFPS(30)
+[01/08 09:35:39.687555][debug][4064][OpenNISensorParams.cpp:121] DepthFPS(30)was successfully set.
+[01/08 09:35:39.687565][debug][4064][OpenNISensorParams.cpp:110] set property DepthHoleFilter(1)
+[01/08 09:35:39.688673][debug][4064][OpenNISensorParams.cpp:121] DepthHoleFilter(1)was successfully set.
+[01/08 09:35:39.688701][debug][4064][OpenNISensorParams.cpp:110] set property Registration(0)
+[01/08 09:35:39.692466][debug][4064][OpenNISensorParams.cpp:121] Registration(0)was successfully set.
+[01/08 09:35:39.692506][debug][4064][OpenNISensorParams.cpp:110] set property DepthMirror(0)
+[01/08 09:35:39.693551][debug][4064][OpenNISensorParams.cpp:121] DepthMirror(0)was successfully set.
+[01/08 09:35:39.693570][debug][4064][OpenNISensorParams.cpp:110] set property Stream1Mode(2)
+[01/08 09:35:39.696434][debug][4064][OpenNISensorParams.cpp:121] Stream1Mode(2)was successfully set.
+[01/08 09:35:39.696469][debug][4064][OpenNISensorParams.cpp:110] set property DepthCropEnabled(0)
+[01/08 09:35:39.707717][debug][4064][OpenNISensorParams.cpp:121] DepthCropEnabled(0)was successfully set.
+[01/08 09:35:39.707766][debug][4064][OpenNISensorParams.cpp:110] set property FrameSync(0)
+[01/08 09:35:39.708804][debug][4064][OpenNISensorParams.cpp:121] FrameSync(0)was successfully set.
+[01/08 09:35:39.708849][debug][4064][OpenNIVideoSensor.cpp:546] Stream state changed to STREAM_STATE_STARTING. @OB_SENSOR_DEPTH
+[01/08 09:35:39.708855][debug][4064][Pipeline.cpp:299] Sensor stream started, sensorType=OB_SENSOR_DEPTH
+[01/08 09:35:39.708876][debug][4064][FrameBufferManager.hpp:65] FrameBufferManager created! frame type:N11libobsensor7IRFrameE, obj addr:0x7ffe902f1450, frame obj total size:0.373MB
+[01/08 09:35:39.708878][debug][4064][FrameMemoryPool.cpp:72] IRFrame bufferManager created!
+[01/08 09:35:39.708918][debug][4064][OpenNISensorStreams.cpp:79] Firmware stream IR processor was replaced.
+[01/08 09:35:39.708929][debug][4064][FrameProcessor.cpp:138] Frame processor active blocks chain update: input ->FrameUnpacker -> output
+[01/08 09:35:39.708932][debug][4064][FrameProcessor.cpp:149] FrameProcessor started, 2 blocks contained!
+[01/08 09:35:39.708937][debug][4064][OpenNIVideoSensor.cpp:767] Creating USB IR read thread... 
+[01/08 09:35:39.708939][debug][4064][OpenNIUSBLinux.cpp:112] Starting a USB read thread...
+[01/08 09:35:39.709892][debug][4064][OpenNISensorParams.cpp:110] set property IRFormat(2)
+[01/08 09:35:39.711054][debug][4064][OpenNISensorParams.cpp:121] IRFormat(2)was successfully set.
+[01/08 09:35:39.711071][debug][4064][OpenNISensorParams.cpp:110] set property IRResolution(1)
+[01/08 09:35:39.713094][debug][4064][OpenNISensorParams.cpp:121] IRResolution(1)was successfully set.
+[01/08 09:35:39.713139][debug][4064][OpenNISensorParams.cpp:110] set property IRFPS(30)
+[01/08 09:35:39.714177][debug][4064][OpenNISensorParams.cpp:121] IRFPS(30)was successfully set.
+[01/08 09:35:39.714199][debug][4064][OpenNISensorParams.cpp:110] set property Stream0Mode(3)
+[01/08 09:35:39.718966][debug][4064][OpenNISensorParams.cpp:121] Stream0Mode(3)was successfully set.
+[01/08 09:35:39.719013][debug][4064][OpenNISensorParams.cpp:110] set property FrameSync(0)
+[01/08 09:35:39.726527][debug][4064][OpenNISensorParams.cpp:121] FrameSync(0)was successfully set.
+[01/08 09:35:39.726645][debug][4064][OpenNIVideoSensor.cpp:546] Stream state changed to STREAM_STATE_STARTING. @OB_SENSOR_IR
+[01/08 09:35:39.726673][debug][4064][Pipeline.cpp:299] Sensor stream started, sensorType=OB_SENSOR_IR
+[01/08 09:35:39.726687][debug][4064][VideoSensor.cpp:566] VideoSensor::start, @OB_SENSOR_COLOR
+[01/08 09:35:39.726716][debug][4064][FrameBufferManager.hpp:65] FrameBufferManager created! frame type:N11libobsensor10ColorFrameE, obj addr:0x7ffe902f4810, frame obj total size:0.293MB
+[01/08 09:35:39.726728][debug][4064][FrameMemoryPool.cpp:76] ColorFrame bufferManager created!
+[01/08 09:35:39.726745][debug][4064][FrameProcessor.cpp:138] Frame processor active blocks chain update: input -> output
+[01/08 09:35:39.726753][debug][4064][FrameProcessor.cpp:149] FrameProcessor started, 1 blocks contained!
+[01/08 09:35:39.726770][info][4064][VideoSensor.cpp:646] start OB_SENSOR_COLOR stream with profile: {type: OB_STREAM_COLOR, format: OB_FORMAT_MJPG, width: 640, height: 480, fps: 30}, Backend Format: OB_FORMAT_MJPG
+[01/08 09:35:39.726800][debug][4064][ObV4lUvcDevicePort.cpp:244] Recognized pixel-format Motion-JPEG
+[01/08 09:35:39.726867][debug][4064][ObV4lUvcDevicePort.cpp:579] Set metadata format to D4XX
+[01/08 09:35:39.738235][debug][4064][ObV4lUvcDevicePort.cpp:625] Video node was successfully configured to MJPG format, fd 33
+[01/08 09:35:39.823309][debug][4139][OpenNIDataProcessor.cpp:28] IR: Expected 1, got 592
+[01/08 09:35:39.824375][debug][4138][OpenNIDataProcessor.cpp:28] Depth: Expected 1, got 358
+[01/08 09:35:39.847954][debug][4139][FrameBufferManager.cpp:35] New frame buffer allocated=0.373MB, total usage: allocated=0.373MB, max limit=2048.000MB
+[01/08 09:35:39.849939][debug][4138][FrameBufferManager.cpp:35] New frame buffer allocated=0.403MB, total usage: allocated=0.776MB, max limit=2048.000MB
+[01/08 09:35:40.399096][debug][4064][VideoSensor.cpp:672] Stream state changed to STREAM_STATE_STARTING. @OB_SENSOR_COLOR
+[01/08 09:35:40.399132][debug][4064][VideoSensor.cpp:674] Stream starting! @OB_SENSOR_COLOR
+[01/08 09:35:40.399136][debug][4064][Pipeline.cpp:299] Sensor stream started, sensorType=OB_SENSOR_COLOR
+[01/08 09:35:40.399139][info][4064][Pipeline.cpp:301] Start streams done!
+[01/08 09:35:40.399143][info][4064][Pipeline.cpp:277] Pipeline start done!
+[01/08 09:35:40.399186][debug][4139][OpenNIVideoSensor.cpp:716] Stream state changed to STREAM_STATE_STREAMING. @OB_SENSOR_IR
+[01/08 09:35:40.399419][debug][4139][FrameProcessingBlock.cpp:59] FrameProcessingBlock@N11libobsensor13FrameUnpackerE process thread started!
+[01/08 09:35:40.399475][debug][4153][FrameBufferManager.hpp:65] FrameBufferManager created! frame type:N11libobsensor7IRFrameE, obj addr:0x7ffe7c000b70, frame obj total size:0.586MB
+[01/08 09:35:40.399490][debug][4153][FrameMemoryPool.cpp:72] IRFrame bufferManager created!
+[01/08 09:35:40.399509][debug][4153][FrameBufferManager.cpp:35] New frame buffer allocated=0.586MB, total usage: allocated=1.362MB, max limit=2048.000MB
+[01/08 09:35:40.399790][debug][4139][FrameBufferManager.cpp:35] New frame buffer allocated=0.373MB, total usage: allocated=1.735MB, max limit=2048.000MB
+[01/08 09:35:40.399999][debug][4153][FrameBufferManager.hpp:65] FrameBufferManager created! frame type:N11libobsensor8FrameSetE, obj addr:0x7ffe7c000d00, frame obj total size:0.000MB
+[01/08 09:35:40.400028][debug][4153][FrameMemoryPool.cpp:92] Frameset bufferManager created!
+[01/08 09:35:40.400087][debug][4153][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_IR
+[01/08 09:35:40.400131][debug][4153][FrameBufferManager.cpp:35] New frame buffer allocated=0.586MB, total usage: allocated=2.322MB, max limit=2048.000MB
+[01/08 09:35:40.400835][debug][4153][FrameBufferManager.cpp:35] New frame buffer allocated=0.586MB, total usage: allocated=2.908MB, max limit=2048.000MB
+[01/08 09:35:40.401006][debug][4138][OpenNIVideoSensor.cpp:716] Stream state changed to STREAM_STATE_STREAMING. @OB_SENSOR_DEPTH
+[01/08 09:35:40.401353][debug][4153][FrameBufferManager.cpp:35] New frame buffer allocated=0.000MB, total usage: allocated=2.908MB, max limit=2048.000MB
+[01/08 09:35:40.401492][debug][4138][FrameProcessingBlock.cpp:59] FrameProcessingBlock@N11libobsensor13FrameUnpackerE process thread started!
+[01/08 09:35:40.401926][debug][4138][FrameBufferManager.cpp:35] New frame buffer allocated=0.403MB, total usage: allocated=3.312MB, max limit=2048.000MB
+[01/08 09:35:40.402455][debug][4138][FrameBufferManager.cpp:35] New frame buffer allocated=0.403MB, total usage: allocated=3.715MB, max limit=2048.000MB
+[01/08 09:35:40.402964][debug][4155][FrameBufferManager.hpp:65] FrameBufferManager created! frame type:N11libobsensor10DepthFrameE, obj addr:0x7ffe902d1010, frame obj total size:0.586MB
+[01/08 09:35:40.402987][debug][4155][FrameMemoryPool.cpp:60] DepthFrame bufferManager created!
+[01/08 09:35:40.403016][debug][4155][FrameBufferManager.cpp:35] New frame buffer allocated=0.586MB, total usage: allocated=4.301MB, max limit=2048.000MB
+[01/08 09:35:40.404772][debug][4155][FrameProcessingBlock.cpp:59] FrameProcessingBlock@N11libobsensor15FrameSoftFilterE process thread started!
+[01/08 09:35:40.404845][debug][4155][FrameBufferManager.cpp:35] New frame buffer allocated=0.586MB, total usage: allocated=4.888MB, max limit=2048.000MB
+[01/08 09:35:40.406148][debug][4155][FrameBufferManager.cpp:35] New frame buffer allocated=0.586MB, total usage: allocated=5.474MB, max limit=2048.000MB
+[01/08 09:35:40.406927][debug][4156][FrameProcessingBlock.cpp:59] FrameProcessingBlock@N11libobsensor24Disparity2DepthConverterE process thread started!
+[01/08 09:35:40.414727][debug][4157][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_DEPTH
+[01/08 09:35:40.414759][debug][4139][OpenNIPacketProcessor.cpp:32] Read: IR buffer is corrupt. Size is 219040 (!=390400)
+[01/08 09:35:40.415306][debug][4139][OpenNIFrameProcessor.cpp:89] IR frame is corrupt!
+[01/08 09:35:40.417405][debug][4138][OpenNIFrameProcessor.cpp:96] Depth Frame Buffer overflow! current size: 422280
+[01/08 09:35:40.417447][debug][4138][OpenNIFrameProcessor.cpp:89] Depth frame is corrupt!
+[01/08 09:35:40.417451][error][4138][OpenNIPacketProcessor.cpp:18] Write buffer overflow!
+[01/08 09:35:40.417457][debug][4138][OpenNIPacketProcessor.cpp:32] Read: Depth buffer is corrupt. Size is 422280 (!=422400)
+[01/08 09:35:40.450399][debug][4155][FrameBufferManager.cpp:35] New frame buffer allocated=0.586MB, total usage: allocated=6.061MB, max limit=2048.000MB
+[01/08 09:35:40.643904][debug][4151][FrameBufferManager.cpp:35] New frame buffer allocated=0.293MB, total usage: allocated=6.354MB, max limit=2048.000MB
+[01/08 09:35:40.643960][debug][4151][VideoSensor.cpp:460] Stream state changed to STREAM_STATE_STREAMING. @OB_SENSOR_COLOR
+[01/08 09:35:40.644078][debug][4151][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_COLOR
+[01/08 09:35:40.682220][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:41.371165][debug][4152][FrameBufferManager.hpp:65] FrameBufferManager created! frame type:N11libobsensor10ColorFrameE, obj addr:0x7ffe5c000be0, frame obj total size:0.879MB
+[01/08 09:35:41.371199][debug][4152][FrameMemoryPool.cpp:76] ColorFrame bufferManager created!
+[01/08 09:35:41.371244][debug][4152][FrameBufferManager.cpp:35] New frame buffer allocated=0.879MB, total usage: allocated=7.233MB, max limit=2048.000MB
+[01/08 09:35:41.675589][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:42.676436][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:42.824628][debug][4140][OpenNIDataProcessor.cpp:28] Depth: Expected 359, got 4369 [**2 logs in 3000ms, last: 09:35:40.408968**]
+[01/08 09:35:43.403567][debug][4154][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_IR [**92 logs in 3003ms, last: 09:35:43.382701**]
+[01/08 09:35:43.408834][debug][4158][OpenNIDataProcessor.cpp:28] IR: Expected 513, got 2241 [**2 logs in 3585ms, last: 09:35:40.408437**]
+[01/08 09:35:43.416336][debug][4160][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_DEPTH [**91 logs in 3001ms, last: 09:35:43.385182**]
+[01/08 09:35:43.675669][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:43.699736][debug][4163][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_COLOR [**51 logs in 3055ms, last: 09:35:43.643247**]
+[01/08 09:35:44.675712][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:45.415914][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=30.514559fps
+[01/08 09:35:45.675264][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=17.090620fps
+[01/08 09:35:45.675593][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:46.675750][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:47.680479][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:48.675729][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:49.416978][debug][4186][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_IR [**180 logs in 6013ms, last: 09:35:49.382988**]
+[01/08 09:35:49.419249][debug][4157][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_DEPTH [**181 logs in 6002ms**]
+[01/08 09:35:49.675596][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:49.703642][debug][4188][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_COLOR [**101 logs in 6003ms, last: 09:35:49.683611**]
+[01/08 09:35:50.449781][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.996027fps
+[01/08 09:35:50.675584][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:50.695586][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.733068fps
+[01/08 09:35:51.675795][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:52.675585][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:53.675607][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:54.675685][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:55.484102][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.990070fps
+[01/08 09:35:55.675696][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:55.696059][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.796640fps
+[01/08 09:35:56.675658][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:57.676465][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:58.675990][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:35:59.675966][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:00.508022][debug][4151][Pipeline.cpp:323] Pipeline streaming... frameset output rate=30.055731fps
+[01/08 09:36:00.675644][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:00.724135][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=26.650757fps
+[01/08 09:36:01.418106][debug][4197][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_IR [**360 logs in 12001ms, last: 09:36:01.385021**]
+[01/08 09:36:01.422842][debug][4157][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_DEPTH [**360 logs in 12003ms**]
+[01/08 09:36:01.676700][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:01.724199][debug][4151][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_COLOR [**265 logs in 12020ms**]
+[01/08 09:36:02.675717][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:03.675712][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:04.675899][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:05.512289][debug][4151][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.976019fps
+[01/08 09:36:05.675585][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:05.764271][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=24.603174fps
+[01/08 09:36:06.675719][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:07.675611][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:08.675703][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:09.675584][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:10.519267][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.958059fps
+[01/08 09:36:10.675598][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:10.772552][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=20.766773fps
+[01/08 09:36:11.675800][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:12.675781][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:13.675670][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:14.675717][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:15.552784][debug][4151][Pipeline.cpp:323] Pipeline streaming... frameset output rate=30.001987fps
+[01/08 09:36:15.675661][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:15.804739][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=20.071543fps
+[01/08 09:36:16.675665][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:17.675630][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:18.675654][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:19.675872][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:20.585012][debug][4151][Pipeline.cpp:323] Pipeline streaming... frameset output rate=30.001987fps
+[01/08 09:36:20.675783][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:20.825008][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=19.521912fps
+[01/08 09:36:21.675689][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:22.675600][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:23.675585][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:24.675617][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:25.418760][debug][4209][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_IR [**720 logs in 24000ms, last: 09:36:25.388192**]
+[01/08 09:36:25.424270][debug][4157][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_DEPTH [**720 logs in 24001ms**]
+[01/08 09:36:25.588157][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.982012fps
+[01/08 09:36:25.675597][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:25.725323][debug][4151][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_COLOR [**478 logs in 24001ms**]
+[01/08 09:36:25.845263][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.530571fps
+[01/08 09:36:26.675610][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:27.675745][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:28.675655][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:29.675734][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:30.622128][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.996027fps
+[01/08 09:36:30.675671][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:30.873525][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.905331fps
+[01/08 09:36:31.675591][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:32.675646][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:33.675581][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:34.675544][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:35.656167][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.996027fps
+[01/08 09:36:35.675581][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:35.905770][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=20.071543fps
+[01/08 09:36:36.676736][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:37.675857][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:38.675889][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:39.675976][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:40.657089][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.994001fps
+[01/08 09:36:40.675724][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:40.958034][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=18.207006fps
+[01/08 09:36:41.675589][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:42.675598][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:43.675760][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:44.675611][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:45.675582][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:45.678265][debug][4151][Pipeline.cpp:323] Pipeline streaming... frameset output rate=30.073690fps
+[01/08 09:36:45.978239][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.733068fps
+[01/08 09:36:46.675716][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:47.675604][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:48.675851][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:49.675695][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:50.675630][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:50.686527][debug][4151][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.952078fps
+[01/08 09:36:50.986967][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=23.562302fps
+[01/08 09:36:51.086596][debug][4151][FrameBufferManager.cpp:35] New frame buffer allocated=0.293MB, total usage: allocated=7.527MB, max limit=2048.000MB
+[01/08 09:36:51.086663][debug][4151][FrameBufferManager.cpp:35] New frame buffer allocated=0.000MB, total usage: allocated=7.527MB, max limit=2048.000MB
+[01/08 09:36:51.675726][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:52.675613][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:53.676844][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:54.675587][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:54.692220][debug][4153][FrameBufferManager.cpp:35] New frame buffer allocated=0.586MB, total usage: allocated=8.114MB, max limit=2048.000MB
+[01/08 09:36:55.675587][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:55.687633][debug][4151][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.994001fps
+[01/08 09:36:56.020577][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=29.797379fps
+[01/08 09:36:56.675965][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:57.675931][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:58.675585][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:36:59.675548][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:00.675583][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:00.693284][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.964043fps
+[01/08 09:37:01.054991][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=21.255463fps
+[01/08 09:37:01.675601][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:02.675689][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:03.675694][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:04.675621][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:05.675762][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:05.715401][debug][4151][Pipeline.cpp:323] Pipeline streaming... frameset output rate=30.067703fps
+[01/08 09:37:06.075258][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.729736fps
+[01/08 09:37:06.675650][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:07.675590][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:08.675708][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:09.675962][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:10.675645][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:10.727760][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.928171fps
+[01/08 09:37:11.095482][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.733068fps
+[01/08 09:37:11.675551][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:12.675984][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:13.423260][debug][4228][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_IR [**1440 logs in 48004ms, last: 09:37:13.396153**]
+[01/08 09:37:13.431252][debug][4157][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_DEPTH [**1440 logs in 48006ms**]
+[01/08 09:37:13.675875][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:13.783880][debug][4151][Pipeline.cpp:319] Frame received on pipeline! type=OB_FRAME_COLOR [**952 logs in 48058ms**]
+[01/08 09:37:14.676111][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:15.675601][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:15.755932][debug][4151][Pipeline.cpp:323] Pipeline streaming... frameset output rate=30.031822fps
+[01/08 09:37:16.115737][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.733068fps
+[01/08 09:37:16.677720][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:17.676095][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:18.675529][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:19.679872][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:20.675541][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:20.762685][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.958059fps
+[01/08 09:37:21.136018][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.729736fps
+[01/08 09:37:21.675632][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:22.675653][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:23.675614][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:24.675758][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:25.675584][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:25.796526][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.996027fps
+[01/08 09:37:26.156242][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.733068fps
+[01/08 09:37:26.675582][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:27.676386][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:28.675672][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:29.675616][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:30.676673][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:30.797395][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.994001fps
+[01/08 09:37:31.176518][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.733068fps
+[01/08 09:37:31.675703][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:32.675548][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:33.675591][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:34.675764][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:35.676386][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:35.831248][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.996027fps
+[01/08 09:37:36.200726][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.719744fps
+[01/08 09:37:36.675537][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:37.675667][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:38.675796][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:39.675597][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:40.675722][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:40.861497][debug][4151][Pipeline.cpp:323] Pipeline streaming... frameset output rate=30.019880fps
+[01/08 09:37:41.220985][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.733068fps
+[01/08 09:37:41.675604][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:42.676252][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:43.676221][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:44.675602][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:45.675586][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:45.865985][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.976019fps
+[01/08 09:37:46.241217][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.729736fps
+[01/08 09:37:46.675675][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:47.675711][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:48.676000][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:49.675730][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:50.675583][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:50.900546][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.990070fps
+[01/08 09:37:51.261519][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.733068fps
+[01/08 09:37:51.675608][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:52.675864][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:53.676709][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:54.675854][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:55.675600][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:55.901049][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.994001fps
+[01/08 09:37:56.281722][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.733068fps
+[01/08 09:37:56.676465][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:57.675904][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:58.675566][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:37:59.675918][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:00.675671][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:00.934728][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=30.001987fps
+[01/08 09:38:01.301970][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.733068fps
+[01/08 09:38:01.675583][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:02.675583][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:03.675612][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:04.675627][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:05.675754][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:05.966215][debug][4151][Pipeline.cpp:323] Pipeline streaming... frameset output rate=30.007948fps
+[01/08 09:38:06.322269][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.729736fps
+[01/08 09:38:06.675692][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:07.675722][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:08.676222][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:09.675802][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:10.675668][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
+[01/08 09:38:10.969665][debug][4153][Pipeline.cpp:323] Pipeline streaming... frameset output rate=29.982012fps
+[01/08 09:38:11.342502][debug][4151][VideoSensor.cpp:427] OB_SENSOR_COLOR Streaming... frameRate=16.733068fps
+[01/08 09:38:11.675942][warning][3971][ObException.cpp:5] Property is not supported! propertyId: 1003
