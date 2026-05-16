@@ -39,9 +39,9 @@ def generate_launch_description():
     remappings=[
             ('/tf', 'tf'),
             ('/tf_static', 'tf_static'),
-            ('rgb/image', '/depth_cam/rgb/image_raw'),
-            ('rgb/camera_info', '/depth_cam/rgb/camera_info'),
-            ('depth/image', '/depth_cam/depth/image_raw'),
+            ('rgb/image', '/camera/color/image_raw'),
+            ('rgb/camera_info', '/camera/color/camera_info'),
+            ('depth/image', '/camera/depth/image_raw'),
             ('odom', '/odom'),
           ]
 

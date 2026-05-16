@@ -13,7 +13,7 @@ def launch_setup(context):
     use_depth_camera = LaunchConfiguration('use_depth_camera', default='false').perform(context)
     master_name = LaunchConfiguration('master_name', default='/').perform(context)
     robot_name = LaunchConfiguration('robot_name', default='/').perform(context)
-    depth_camera_name = LaunchConfiguration('depth_camera_name', default='depth_cam').perform(context)
+    depth_camera_name = LaunchConfiguration('depth_camera_name', default='camera').perform(context)
     action_name = LaunchConfiguration('action_name', default='init').perform(context)
 
     sim_arg = DeclareLaunchArgument('sim', default_value=sim)

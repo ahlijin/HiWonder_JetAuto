@@ -16,12 +16,16 @@ def launch_setup(context):
     robot_name = LaunchConfiguration('robot_name', default=os.environ.get('HOST', 'jetson')).perform(context)
     master_name = LaunchConfiguration('master_name', default=os.environ.get('MASTER', 'pi3')).perform(context)
     use_teb = LaunchConfiguration('use_teb', default='true').perform(context)
+    use_depth_camera = LaunchConfiguration('use_depth_camera', default='true').perform(context)
+    depth_camera_name = LaunchConfiguration('depth_camera_name', default='camera').perform(context)
 
     sim_arg = DeclareLaunchArgument('sim', default_value=sim)
     map_name_arg = DeclareLaunchArgument('map', default_value=map_name)
     master_name_arg = DeclareLaunchArgument('master_name', default_value=master_name)
     robot_name_arg = DeclareLaunchArgument('robot_name', default_value=robot_name)
     use_teb_arg = DeclareLaunchArgument('use_teb', default_value=use_teb)
+    use_depth_camera_arg = DeclareLaunchArgument('use_depth_camera', default_value=use_depth_camera)
+    depth_camera_name_arg = DeclareLaunchArgument('depth_camera_name', default_value=depth_camera_name)
 
     use_sim_time = 'true' if sim == 'true' else 'false'
     use_namespace = 'true' if robot_name != '/' else 'false'
@@ -31,7 +35,9 @@ def launch_setup(context):
         launch_arguments={
             'sim': sim,
             'master_name': master_name,
-            'robot_name': robot_name
+            'robot_name': robot_name,
+            'use_depth_camera': use_depth_camera,
+            'depth_camera_name': depth_camera_name,
         }.items(),
     )
     
@@ -59,7 +65,7 @@ def launch_setup(context):
       ]
     )
 
-    return [sim_arg, map_name_arg, master_name_arg, robot_name_arg, use_teb_arg, bringup_launch]
+    return [sim_arg, map_name_arg, master_name_arg, robot_name_arg, use_teb_arg, use_depth_camera_arg, depth_camera_name_arg, bringup_launch]
 
 def generate_launch_description():
     return LaunchDescription([

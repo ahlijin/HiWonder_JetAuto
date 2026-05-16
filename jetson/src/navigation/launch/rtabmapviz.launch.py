@@ -7,14 +7,14 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     parameters=[{
           'queue_size':20,
-          'frame_id':'depth_cam_link',
+          'frame_id':'camera_link',
           'use_sim_time':use_sim_time,
           'subscribe_depth':True}]
 
     remappings=[
-          ('rgb/image', '/depth_cam/color/image_raw'), 
-          ('rgb/camera_info', '/depth_cam/color/camera_info'),
-          ('depth/image', '/depth_cam/depth/image_raw')]
+          ('rgb/image', '/camera/color/image_raw'), 
+          ('rgb/camera_info', '/camera/color/camera_info'),
+          ('depth/image', '/camera/depth/image_raw')]
 
     return LaunchDescription([
         # Set env var to print messages to stdout immediately

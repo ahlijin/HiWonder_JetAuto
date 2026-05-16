@@ -13,9 +13,11 @@
 
 ```text
 .
+├─ pi3/pi3_env.sh
 ├─ pi3/
 │  ├─ pi3_start.sh
 │  └─ src/
+├─ jetson/jetson_env.sh
 ├─ jetson/
 │  ├─ jetson_start.sh
 │  ├─ jetson_slam.sh
@@ -58,17 +60,31 @@ Jetson 侧主要负责：
 
 ### 启动脚本
 
+- `pi3/pi3_env.sh`
+  - Pi3 侧环境变量入口，当前包含：
+    - `MACHINE_TYPE=JetAutoPro`
+    - `LIDAR_TYPE=A1`
+    - `ROS_DOMAIN_ID=42`
 - `pi3/pi3_start.sh`
   - Pi3 侧统一启动入口。
+  - 默认会依次加载：
+    - `/opt/ros/humble/setup.bash`
+    - `~/pi3_ws/install/setup.bash`
+    - `~/pi3_ws/pi3_env.sh`
+  - 最终启动：`ros2 launch bringup pi3_bringup.launch.py`
 
 ### 主要功能包
 
 - `pi3/src/bringup/`
   - Pi3 端整体启动组织。
+- `pi3/src/calibration/`
+  - 标定相关内容。
 - `pi3/src/controller/`
   - 底盘控制相关节点与配置。
 - `pi3/src/driver/`
   - 底层驱动封装。
+- `pi3/src/imu_calib/`
+  - IMU 标定与调试相关内容。
 - `pi3/src/ros_robot_controller/`
   - 机器人控制板相关节点。
 - `pi3/src/peripherals/`
@@ -83,6 +99,10 @@ Jetson 侧主要负责：
   - 舵机控制。
 - `pi3/src/interfaces/`
   - 自定义消息 / 服务定义。
+- `pi3/src/ros_robot_controller_msgs/`
+  - 控制板相关消息定义。
+- `pi3/src/servo_controller_msgs/`
+  - 舵机控制相关消息定义。
 
 ### Pi3 侧特点
 
@@ -98,8 +118,19 @@ Jetson 侧主要负责：
 
 ### 启动脚本
 
+- `jetson/jetson_env.sh`
+  - Jetson 侧环境变量入口，当前包含：
+    - `MACHINE_TYPE=JetAutoPro`
+    - `DEPTH_CAMERA_TYPE=AstraPro`
+    - `ROS_DOMAIN_ID=42`
 - `jetson/jetson_start.sh`
   - Jetson 总启动入口。
+  - 默认会依次加载：
+    - `/opt/ros/humble/setup.bash`
+    - `~/jetson_ws/jetson_env.sh`
+    - `~/jetson_ws/install/setup.bash`
+  - 当前默认启动命令：
+    - `ros2 launch slam jetson_bringup.launch.py use_depth_camera:=true depth_camera_name:=camera`
 - `jetson/jetson_slam.sh`
   - SLAM 相关启动。
 - `jetson/jetson_navigation.sh`
@@ -115,8 +146,13 @@ Jetson 侧主要负责：
   - SLAM 相关 launch、配置与地图文件。
 - `jetson/src/navigation/`
   - 导航相关节点、配置和 RViz。
+- `jetson/src/orbbec_ws/`
+  - 与奥比中光 / Astra 系列深度相机适配相关的工作区内容。
+  - 当前通过 git submodule 引入官方仓库：`https://github.com/orbbec/ros2_astra_camera`
 - `jetson/src/lidar_receiver/`
   - 接收 / 转发雷达数据，衔接 Pi3 与 Jetson。
+- `jetson/src/ros_robot_controller_msgs/`
+  - 与控制板交互时复用的消息定义。
 - `jetson/src/yolov5_ros2/`
   - 视觉检测相关功能。
 - `jetson/src/xf_mic_asr_offline/`
@@ -126,14 +162,22 @@ Jetson 侧主要负责：
 
 ### Jetson 侧当前注意事项
 
-当前 Astra Pro 在 Jetson 这套环境里已经验证到以下情况：
+当前 Astra Pro 在 Jetson 这套 ROS2 环境里的适配问题已经解决，现阶段采用的是 **Orbbec 官方 ROS2 源码**：
 
-- 深度 profile 需要使用设备实际支持的组合，不能直接照搬官方默认值。
-- 彩色流在当前 **Astra Pro + USB2.0 + Jetson + 现有驱动** 组合下不稳定。
-- 因此当前代码里采用了**保守策略**：
-  - 优先保证 Jetson 默认链路可稳定启动；
-  - 默认不强依赖彩色流；
-  - 彩色作为可选项继续单独调试。
+- submodule 路径：`jetson/src/orbbec_ws`
+- 官方仓库：`https://github.com/orbbec/ros2_astra_camera`
+
+当前仓库中的相机 launch 不是直接照搬官方示例，而是在官方驱动基础上做了项目内集成，主要特点包括：
+
+- 保持与本项目现有 `peripherals` / `slam` 启动链路一致；
+- 通过 `jetson/src/peripherals/launch/include/astra.launch.py` 对官方 `astra_pro.launch.xml` 参数进行封装；
+- 默认启动链路已经可以用于当前 Astra Pro / Astra Pro Plus 设备。
+
+实际使用时仍然建议：
+
+- 优先按设备真实支持的 profile 选择参数；
+- 若后续需要额外启用彩色流、点云或更多高级参数，优先参考官方 `ros2_astra_camera` 仓库说明；
+- 若驱动升级，尽量优先同步 submodule，而不是在项目外围重复复制驱动代码。
 
 ---
 
@@ -151,6 +195,13 @@ Jetson 侧主要负责：
 2. 再启动 Jetson 侧 SLAM / 导航 / 可视化；
 3. 最后再按需增加视觉、语音等附加模块。
 
+当前双机目录中已统一预设：
+
+- `ROS_DOMAIN_ID=42`
+- `MACHINE_TYPE=JetAutoPro`
+
+建议两侧保持一致，避免发现异常或跨机通信失败。
+
 ---
 
 ## 推荐启动顺序
@@ -158,23 +209,26 @@ Jetson 侧主要负责：
 ### 1. 启动 Pi3
 
 ```bash
-cd ~/HiWonder_JetAuto/pi3
-bash pi3_start.sh
+cd ~/pi3_ws
+source ./pi3_env.sh
+bash ./pi3_start.sh
 ```
 
 ### 2. 启动 Jetson 基础能力
 
 ```bash
-cd ~/HiWonder_JetAuto/jetson
-bash jetson_start.sh
+cd ~/jetson_ws
+source ./jetson_env.sh
+bash ./jetson_start.sh
 ```
 
 ### 3. 按需启动 SLAM / 导航 / RViz
 
 ```bash
-bash jetson_slam.sh
-bash jetson_navigation.sh
-bash jetson_rviz.sh
+cd ~/jetson_ws
+bash ./jetson_slam.sh
+bash ./jetson_navigation.sh
+bash ./jetson_rviz.sh
 ```
 
 > 具体脚本内容和依赖环境以本机工作区配置为准。
@@ -199,8 +253,8 @@ bash jetson_rviz.sh
 ## 当前仓库状态说明
 
 - `pi3/`：作为底层稳定参考实现。
-- `jetson/`：持续整理和适配中。
-- `README.md`：按当前仓库实际目录和双机职责重新整理。
+- `jetson/`：持续整理和适配中，当前已明确环境脚本、启动入口，并通过官方 `ros2_astra_camera` submodule 接入 Astra Pro。
+- `README.md`：已按当前仓库实际目录、双机职责、环境变量脚本与启动方式重新整理。
 
 如果后面继续迭代，建议优先补充：
 

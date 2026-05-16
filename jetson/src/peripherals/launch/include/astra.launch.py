@@ -1,119 +1,116 @@
 from launch import LaunchDescription, LaunchService
-from launch_ros.descriptions import ComposableNode
+from launch.actions import DeclareLaunchArgument, GroupAction, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import ComposableNodeContainer, PushRosNamespace
-from launch.actions import GroupAction, OpaqueFunction, DeclareLaunchArgument
+from launch_ros.actions import Node, PushRosNamespace
+
+
+# Keep `tf_prefix` as a local compatibility argument for the project.
+# The rest of the arguments follow `orbbec_ws/astra_camera/launch/astra_pro.launch.xml`.
+ARGUMENT_DEFAULTS = [
+    ('tf_prefix', ''),
+    ('camera_name', 'camera'),
+    ('depth_registration', 'false'),
+    ('serial_number', ''),
+    ('device_num', '1'),
+    ('vendor_id', '0'),
+    ('product_id', '0'),
+    ('enable_point_cloud', 'true'),
+    ('enable_colored_point_cloud', 'false'),
+    ('point_cloud_qos', 'default'),
+    ('connection_delay', '100'),
+    ('color_width', '640'),
+    ('color_height', '480'),
+    ('color_fps', '30'),
+    ('enable_color', 'true'),
+    ('flip_color', 'false'),
+    ('color_qos', 'default'),
+    ('color_camera_info_qos', 'default'),
+    ('depth_width', '640'),
+    ('depth_height', '480'),
+    ('depth_fps', '30'),
+    ('enable_depth', 'true'),
+    ('flip_depth', 'false'),
+    ('depth_qos', 'default'),
+    ('depth_camera_info_qos', 'default'),
+    ('ir_width', '640'),
+    ('ir_height', '480'),
+    ('ir_fps', '30'),
+    ('enable_ir', 'true'),
+    ('flip_ir', 'false'),
+    ('ir_qos', 'default'),
+    ('ir_camera_info_qos', 'default'),
+    ('publish_tf', 'true'),
+    ('tf_publish_rate', '10.0'),
+    ('ir_info_url', ''),
+    ('color_info_url', ''),
+    ('color_roi_x', '-1'),
+    ('color_roi_y', '-1'),
+    ('color_roi_width', '-1'),
+    ('color_roi_height', '-1'),
+    ('depth_roi_x', '-1'),
+    ('depth_roi_y', '-1'),
+    ('depth_roi_width', '-1'),
+    ('depth_roi_height', '-1'),
+    ('depth_scale', '1'),
+    ('color_depth_synchronization', 'false'),
+    ('use_uvc_camera', 'true'),
+    ('uvc_vendor_id', '0x2bc5'),
+    ('uvc_product_id', '0x0501'),
+    ('uvc_retry_count', '100'),
+    ('uvc_camera_format', 'mjpeg'),
+    ('uvc_flip', 'false'),
+    ('oni_log_level', 'verbose'),
+    ('oni_log_to_console', 'false'),
+    ('oni_log_to_file', 'false'),
+    ('enable_d2c_viewer', 'false'),
+    ('enable_publish_extrinsic', 'false'),
+]
+
+ASTRA_PRO_PARAMETER_NAMES = [name for name, _ in ARGUMENT_DEFAULTS if name != 'tf_prefix']
+
 
 def launch_setup(context):
-    # Declare arguments
-    tf_prefix = LaunchConfiguration('tf_prefix', default='').perform(context)
-    camera_name = LaunchConfiguration('camera_name', default='depth_came').perform(context)
-    args = [
-            DeclareLaunchArgument('tf_prefix', default_value=tf_prefix),
-            DeclareLaunchArgument('camera_name', default_value='camera'),
-            DeclareLaunchArgument('depth_registration', default_value='false'),
-            DeclareLaunchArgument('serial_number', default_value=''),
-            DeclareLaunchArgument('usb_port', default_value=''),
-            DeclareLaunchArgument('device_num', default_value='1'),
-            DeclareLaunchArgument('vendor_id', default_value='0x2bc5'),
-            DeclareLaunchArgument('product_id', default_value=''),
-            DeclareLaunchArgument('enable_point_cloud', default_value='false'),
-            DeclareLaunchArgument('enable_colored_point_cloud', default_value='false'),
-            DeclareLaunchArgument('point_cloud_qos', default_value='default'),
-            DeclareLaunchArgument('connection_delay', default_value='100'),
-            DeclareLaunchArgument('color_width', default_value='640'),
-            DeclareLaunchArgument('color_height', default_value='480'),
-            DeclareLaunchArgument('color_fps', default_value='30'),
-            DeclareLaunchArgument('color_format', default_value='UYVY'),
-            # Astra Pro on the current Jetson USB2.0 setup can negotiate depth
-            # profiles, but enabling color causes the driver pipeline to fail
-            # during stream start even with a supported UYVY profile.
-            # Keep color optional, but disable it by default so Jetson SLAM /
-            # peripherals can start from a stable depth-only baseline.
-            DeclareLaunchArgument('enable_color', default_value='false'),
-            DeclareLaunchArgument('flip_color', default_value='false'),
-            DeclareLaunchArgument('color_qos', default_value='default'),
-            DeclareLaunchArgument('color_camera_info_qos', default_value='default'),
-            DeclareLaunchArgument('enable_color_auto_exposure', default_value='true'),
-            DeclareLaunchArgument('depth_width', default_value='640'),
-            DeclareLaunchArgument('depth_height', default_value='480'),
-            DeclareLaunchArgument('depth_fps', default_value='30'),
-            DeclareLaunchArgument('depth_format', default_value='Y11'),
-            DeclareLaunchArgument('enable_depth', default_value='true'),
-            DeclareLaunchArgument('flip_depth', default_value='false'),
-            DeclareLaunchArgument('depth_qos', default_value='default'),
-            DeclareLaunchArgument('depth_camera_info_qos', default_value='default'),
-            DeclareLaunchArgument('ir_width', default_value='640'),
-            DeclareLaunchArgument('ir_height', default_value='480'),
-            DeclareLaunchArgument('ir_fps', default_value='30'),
-            DeclareLaunchArgument('ir_format', default_value='Y10'),
-            DeclareLaunchArgument('enable_ir', default_value='false'),
-            DeclareLaunchArgument('flip_ir', default_value='false'),
-            DeclareLaunchArgument('ir_qos', default_value='default'),
-            DeclareLaunchArgument('ir_camera_info_qos', default_value='default'),
-            DeclareLaunchArgument('enable_ir_auto_exposure', default_value='true'),
-            DeclareLaunchArgument('publish_tf', default_value='true'),
-            DeclareLaunchArgument('tf_publish_rate', default_value='10.0'),
-            DeclareLaunchArgument('ir_info_url', default_value=''),
-            DeclareLaunchArgument('color_info_url', default_value=''),
-            DeclareLaunchArgument('log_level', default_value='none'),
-            DeclareLaunchArgument('enable_publish_extrinsic', default_value='false'),
-            DeclareLaunchArgument('enable_d2c_viewer', default_value='false'),
-            DeclareLaunchArgument('enable_ldp', default_value='false'),
-            DeclareLaunchArgument('enable_soft_filter', default_value='false'),
-            DeclareLaunchArgument('soft_filter_max_diff', default_value='8'),
-            DeclareLaunchArgument('soft_filter_speckle_size', default_value='100'),
-            DeclareLaunchArgument('enable_frame_sync', default_value='false'),        
-            DeclareLaunchArgument('ordered_pc', default_value='false'),
-            DeclareLaunchArgument('use_hardware_time', default_value='false'),
-            DeclareLaunchArgument('enable_depth_scale', default_value='true'),
-            DeclareLaunchArgument('align_mode', default_value='HW'),
+    launch_args = [
+        DeclareLaunchArgument(name, default_value=default)
+        for name, default in ARGUMENT_DEFAULTS
     ]
 
-    # Node configuration
-    parameters = [{arg.name: LaunchConfiguration(arg.name)} for arg in args]
-    # Define the ComposableNode
-    compose_node = ComposableNode(
-        package='orbbec_camera',
-        plugin='orbbec_camera::OBCameraNodeDriver',
-        name=camera_name,
-        namespace='',
-        parameters=parameters,
-        remappings=[('/tf', '/' + tf_prefix + 'tf'), 
-                    ('/tf_static', '/' + tf_prefix + 'tf_static'),
-                    ('/' + camera_name + '/color/camera_info', '/' + camera_name + '/rgb/camera_info'),
-                    ('/' + camera_name + '/color/image_raw', '/' + camera_name + '/rgb/image_raw'),
-                    ('/' + camera_name + '/color/image_raw/compressed', '/' + camera_name + '/rgb/image_raw/compressed'),
-                    ('/' + camera_name + '/color/image_raw/compressedDepth', '/' + camera_name + '/rgb/image_raw/compressedDepth'),
-                    ('/' + camera_name + '/depth/color/points', '/' + camera_name + '/depth_registered/points'),
-                    ]
-    )
-    # Define the ComposableNodeContainer
-    container = ComposableNodeContainer(
-        name='camera_container',
-        namespace='',
-        package='rclcpp_components',
-        executable='component_container',
-        composable_node_descriptions=[
-            compose_node,
-        ],
+    tf_prefix = LaunchConfiguration('tf_prefix').perform(context)
+    camera_name = LaunchConfiguration('camera_name').perform(context)
+
+    # Match astra_pro.launch.xml: one node under the camera namespace,
+    # with parameters passed directly by the launch arguments.
+    parameters = [{name: LaunchConfiguration(name) for name in ASTRA_PRO_PARAMETER_NAMES}]
+
+    camera_node = Node(
+        package='astra_camera',
+        executable='astra_camera_node',
+        name='camera',
         output='screen',
+        parameters=parameters,
+        remappings=[
+            ('/tf', '/' + tf_prefix + 'tf'),
+            ('/tf_static', '/' + tf_prefix + 'tf_static'),
+            ('/' + camera_name + '/depth/color/points', '/' + camera_name + '/depth_registered/points'),
+        ],
     )
 
     action_node = GroupAction(
-            actions=[
-                PushRosNamespace(camera_name),
-                container
-            ])
-    return args + [action_node]
+        actions=[
+            PushRosNamespace(camera_name),
+            camera_node,
+        ]
+    )
+    return launch_args + [action_node]
+
 
 def generate_launch_description():
     return LaunchDescription([
-        OpaqueFunction(function = launch_setup)
+        OpaqueFunction(function=launch_setup)
     ])
 
+
 if __name__ == '__main__':
-    # 创建一个LaunchDescription对象(Create a LaunchDescription object)
     ld = generate_launch_description()
 
     ls = LaunchService()

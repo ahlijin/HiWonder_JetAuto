@@ -28,9 +28,9 @@ def launch_setup(context):
     map_frame = '{}map'.format(frame_prefix)
     odom_frame = '{}odom'.format(frame_prefix)
     base_frame = '{}base_footprint'.format(frame_prefix)
-    depth_camera_topic = '{}/depth_cam/depth/image_raw'.format(topic_prefix)
-    depth_camera_info = '{}/depth_cam/color/camera_info'.format(topic_prefix)
-    rgb_camera_topic = '{}/depth_cam/color/image_raw'.format(topic_prefix)
+    depth_camera_topic = '{}/camera/depth/image_raw'.format(topic_prefix)
+    depth_camera_info = '{}/camera/color/camera_info'.format(topic_prefix)
+    rgb_camera_topic = '{}/camera/color/image_raw'.format(topic_prefix)
     odom_topic = '{}/odom'.format(topic_prefix)
     scan_topic = '{}/scan'.format(topic_prefix)
 
