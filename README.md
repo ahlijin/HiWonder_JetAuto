@@ -53,7 +53,9 @@ Jetson 侧主要承担计算密集型和感知决策类任务：
 │  ├─ jetson_rviz.sh
 │  └─ src/
 ├─ Changelog/
-│  └─ 0.9.1.md
+│  ├─ 0.9.0.md
+│  ├─ 0.9.1.md
+│  └─ 0.9.3.md
 └─ README.md
 ```
 
@@ -120,6 +122,65 @@ Jetson 侧当前重点能力包括：
 
 ---
 
+## ROS 依赖库
+
+### Pi3 侧依赖
+
+以下为 Pi3 侧 `apt` 安装的 ROS 依赖包：
+
+| 包名 | 用途 |
+|------|------|
+| `rclpy` / `rclcpp` | ROS2 Python / C++ 客户端库 |
+| `sensor_msgs` | 传感器消息类型（LaserScan、Imu 等） |
+| `std_msgs` / `std_srvs` | 标准消息与服务 |
+| `geometry_msgs` | 几何消息类型（Pose、Twist 等） |
+| `nav_msgs` | 导航消息类型（Odometry 等） |
+| `builtin_interfaces` | 内置接口类型 |
+| `tf2` / `tf2_msgs` / `tf2_ros` | TF 坐标系变换 |
+| `robot_state_publisher` | 发布机器人模型 TF |
+| `joint_state_publisher` / `joint_state_publisher_gui` | 关节状态发布 |
+| `urdf` / `xacro` | URDF 模型解析与宏预处理 |
+| `rviz2` | 可视化工具 |
+| `rosidl_default_generators` / `rosidl_default_runtime` | 消息/服务接口代码生成 |
+| `robot_localization` | EKF 里程计融合 |
+| `imu_filter_madgwick` | IMU 姿态滤波 |
+| `nav2_common` | 导航通用工具（参数替换等） |
+| `launch` / `launch_ros` | Launch 启动框架 |
+| `ament_index_python` | 包路径查找 |
+| `cv_bridge` | ROS ↔ OpenCV 图像桥接 |
+| `message_filters` | 消息时间同步 |
+
+系统级依赖：
+
+| 包名 | 用途 |
+|------|------|
+| `libeigen3-dev` | 线性代数库（imu_calib） |
+| `libyaml-cpp-dev` | YAML 解析库（imu_calib） |
+
+### Jetson 侧依赖
+
+Jetson 侧除 Pi3 侧大部分基础包外，额外需要：
+
+| 包名 | 用途 |
+|------|------|
+| `slam_toolbox` | 激光 SLAM 建图与定位 |
+| `rtabmap_slam` / `rtabmap_sync` | RTAB-Map 建图与 RGBD 同步 |
+| `nav2_bringup` / `nav2_controller` | Nav2 导航框架 |
+| `nav2_planner` / `nav2_navigation` | 导航规划与执行 |
+| `nav2_bt_navigator` / `nav2_localization` | 行为树导航与定位 |
+| `camera_info_manager` | 相机信息管理 |
+| `cv_bridge` | ROS ↔ OpenCV 图像桥接 |
+| `image_geometry` / `image_publisher` / `image_transport` | 图像处理与传输 |
+| `rclcpp_components` | 组件节点加载 |
+| `class_loader` | 动态类加载 |
+| `message_filters` | 消息时间同步 |
+| `tf2_sensor_msgs` | 传感器点云 TF 变换 |
+
+> 注：`astra_camera`（Orbbec 深度相机驱动）为源码包，通过 Git submodule 引入，
+> 位于 `jetson/src/orbbec_ws/`，非 `apt` 安装。
+
+---
+
 ## 当前能力概览
 
 当前仓库围绕以下方向组织：
@@ -137,4 +198,6 @@ Jetson 侧当前重点能力包括：
 
 更新日志请查看：
 
+- `Changelog/0.9.0.md`
 - `Changelog/0.9.1.md`
+- `Changelog/0.9.3.md`
