@@ -55,7 +55,7 @@ Jetson 侧主要承担计算密集型和感知决策类任务：
 ├─ Changelog/
 │  ├─ 0.9.0.md
 │  ├─ 0.9.1.md
-│  └─ 0.9.3.md
+│  └─ 0.9.2.md
 └─ README.md
 ```
 
@@ -200,4 +200,4 @@ Jetson 侧除 Pi3 侧大部分基础包外，额外需要：
 
 - `Changelog/0.9.0.md`
 - `Changelog/0.9.1.md`
-- `Changelog/0.9.3.md`
+- `Changelog/0.9.2.md`
