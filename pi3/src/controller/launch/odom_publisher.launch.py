@@ -3,9 +3,9 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription, LaunchService
 from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node, PushRosNamespace
+from launch_ros.actions import Node
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 
 def generate_launch_description():
     namespace = LaunchConfiguration('namespace', default='')
@@ -22,22 +22,8 @@ def generate_launch_description():
     imu_frame_arg = DeclareLaunchArgument('imu_frame', default_value=imu_frame)
     frame_prefix_arg = DeclareLaunchArgument('frame_prefix', default_value=frame_prefix)
 
-    jetauto_description_package_path = get_package_share_directory('jetauto_description')
     robot_controller_package_path = get_package_share_directory('ros_robot_controller')
     controller_package_path = get_package_share_directory('controller')
-
-    robot_description_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([os.path.join(jetauto_description_package_path, 'launch/robot_description.launch.py')
-        ]),
-        launch_arguments={
-            'frame_prefix': frame_prefix,
-            'use_gui': 'false',
-            'use_rviz': 'false',
-            'use_sim_time': 'false',
-            'use_namespace': use_namespace,
-            'namespace': namespace,
-        }.items()
-    )
 
     robot_controller_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(robot_controller_package_path, 'launch/ros_robot_controller.launch.py')
@@ -66,7 +52,6 @@ def generate_launch_description():
         base_frame_arg,
         imu_frame_arg,
         frame_prefix_arg,
-        robot_description_launch,
         robot_controller_launch,
         odom_publisher_node
     ])

@@ -8,8 +8,8 @@ from launch.actions import IncludeLaunchDescription, OpaqueFunction, DeclareLaun
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def launch_setup(context):
-    peripherals_package_path = get_package_share_directory('peripherals')
     slam_package_path = get_package_share_directory('slam')
+    lidar_receiver_package_path = get_package_share_directory('lidar_receiver')
     use_depth_camera = LaunchConfiguration('use_depth_camera', default='true').perform(context)
     depth_camera_name = LaunchConfiguration('depth_camera_name', default='camera').perform(context)
 
@@ -21,6 +21,19 @@ def launch_setup(context):
         executable='lidar_receiver_node',
         name='lidar_receiver',
         output='screen',
+        parameters=[{
+            'output_topic': 'scan_raw'
+        }],
+    )
+
+    laser_filters_config = os.path.join(lidar_receiver_package_path, 'config/lidar_filters_config.yaml')
+    laser_filter_node = Node(
+        package='laser_filters',
+        executable='scan_to_scan_filter_chain',
+        output='screen',
+        parameters=[laser_filters_config, {'hw_id': 'none'}],
+        remappings=[('scan', 'scan_raw'),
+                    ('scan_filtered', 'scan')]
     )
 
     slam_launch = IncludeLaunchDescription(
@@ -36,6 +49,7 @@ def launch_setup(context):
         use_depth_camera_arg,
         depth_camera_name_arg,
         lidar_receiver_node,
+        laser_filter_node,
         slam_launch,
     ]
 

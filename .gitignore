@@ -1,6 +1,19 @@
 # IDE 配置文件
 .vscode/
 
+# Python compiled cache
+__pycache__/
+*.pyc
+
+# ROS2 build artifacts
+build/
+log/
+install/
+
+# Orbbec SDK logs
+Log/
+*.log.txt
+
 # Local build / debug artifacts
 jetson_build_status.txt
 jetson_colcon_build.exit

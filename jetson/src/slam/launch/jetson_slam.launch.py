@@ -7,12 +7,12 @@ from launch.actions import IncludeLaunchDescription, OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def launch_setup(context):
-    peripherals_package_path = get_package_share_directory('peripherals')
+    jetauto_peripherals_package_path = get_package_share_directory('jetauto_peripherals')
     slam_package_path = get_package_share_directory('slam')
 
     depth_camera_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(peripherals_package_path, 'launch/depth_camera.launch.py')),
+            os.path.join(jetauto_peripherals_package_path, 'launch/depth_camera.launch.py')),
     )
 
     lidar_receiver_node = Node(

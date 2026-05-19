@@ -9,6 +9,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 def launch_setup(context):
     controller_package_path = get_package_share_directory('controller')
     peripherals_package_path = get_package_share_directory('peripherals')
+    description_package_path = get_package_share_directory('jetauto_description')
 
     controller_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -36,6 +37,15 @@ def launch_setup(context):
             os.path.join(peripherals_package_path, 'launch/joystick_control.launch.py')),
     )
 
+    robot_description_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(description_package_path, 'launch', 'robot_description.launch.py')),
+        launch_arguments={
+            'use_rviz': 'false',
+            'use_gui': 'false',
+        }.items(),
+    )
+
     startup_check_node = Node(
         package='bringup',
         executable='startup_check',
@@ -48,6 +58,7 @@ def launch_setup(context):
         lidar_launch,
         lidar_bridge_node,
         joystick_control_launch,
+        robot_description_launch,
     ]
 
 def generate_launch_description():

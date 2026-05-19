@@ -91,7 +91,6 @@ class Controller(Node):
         self.declare_parameter('odom_frame_id', 'odom')
         self.declare_parameter('linear_correction_factor', 1.00)
         self.declare_parameter('angular_correction_factor', 1.00)
-        self.declare_parameter('machine_type', os.environ['MACHINE_TYPE'])
         
         self.pub_odom_topic = self.get_parameter('pub_odom_topic').value
         self.base_frame_id = self.get_parameter('base_frame_id').value
@@ -114,7 +113,7 @@ class Controller(Node):
             self.odom.pose.covariance = ODOM_POSE_COVARIANCE
             self.odom.twist.covariance = ODOM_TWIST_COVARIANCE
             
-            self.odom_pub = self.create_publisher(Odometry, 'odom_raw', 1)
+            self.odom_pub = self.create_publisher(Odometry, 'odom', 1)
             self.dt = 1.0/50.0
 
             threading.Thread(target=self.cal_odom_fun, daemon=True).start()

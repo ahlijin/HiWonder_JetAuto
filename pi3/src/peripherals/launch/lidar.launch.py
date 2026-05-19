@@ -1,7 +1,6 @@
 import os
 from ament_index_python.packages import get_package_share_directory
 
-from launch_ros.actions import Node
 from launch import LaunchDescription, LaunchService
 from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
@@ -27,25 +26,11 @@ def generate_launch_description():
         launch_arguments={'lidar_frame': lidar_frame,
                           'scan_raw': scan_raw}.items())
 
-    # Only use A1 filter config
-    laser_filters_config = os.path.join(peripherals_package_path, 'config/lidar_filters_config_a1.yaml')
-    laser_filter_node = Node(
-        package='laser_filters',
-        executable='scan_to_scan_filter_chain',
-        output='screen',
-        parameters=[laser_filters_config, {
-            'hw_id': 'none'
-        }],
-        remappings=[('scan', scan_raw),
-                    ('scan_filtered', scan_topic)]
-    )
-
     return LaunchDescription([
         lidar_frame_arg,
         scan_raw_arg,
         scan_topic_arg,
         lidar_launch,
-        laser_filter_node,
     ])
 
 if __name__ == '__main__':

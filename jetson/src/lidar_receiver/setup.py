@@ -11,6 +11,7 @@ setup(
          ['resource/lidar_receiver']),
         ('share/lidar_receiver', ['package.xml']),
         (os.path.join('share', 'lidar_receiver', 'launch'), glob(os.path.join('launch', '*.*'))),
+        (os.path.join('share', 'lidar_receiver', 'config'), glob(os.path.join('config', '*.*'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

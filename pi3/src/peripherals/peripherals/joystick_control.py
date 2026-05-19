@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # encoding: utf-8
-import os
 import math
 import rclpy
 from enum import Enum
@@ -36,7 +35,6 @@ class JoystickController(Node):
         self.max_linear = self.get_parameter('max_linear').value
         self.max_angular = self.get_parameter('max_angular').value
         self.disable_servo_control = self.get_parameter('disable_servo_control').value
-        self.machine = os.environ['MACHINE_TYPE']
         self.get_logger().info('\033[1;32m%s\033[0m' % self.max_linear)
         self.joints_pub = self.create_publisher(ServosPosition, '/servo_controller', 1)
         self.joy_sub = self.create_subscription(Joy, 'ros_robot_controller/joy', self.joy_callback, 1)

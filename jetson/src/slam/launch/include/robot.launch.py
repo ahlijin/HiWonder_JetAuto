@@ -24,28 +24,11 @@ def launch_setup(context):
     use_depth_camera_arg = DeclareLaunchArgument('use_depth_camera', default_value=use_depth_camera)
     action_name_arg = DeclareLaunchArgument('action_name', default_value=action_name)
 
-    peripherals_package_path = get_package_share_directory('peripherals')
-    description_package_path = get_package_share_directory('jetauto_description')
-
-    use_namespace = 'true' if robot_name != '/' else 'false'
-    frame_prefix = '' if robot_name == '/' else '%s/' % robot_name
-
-    robot_description_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(description_package_path, 'launch', 'robot_description.launch.py')),
-        launch_arguments={
-            'namespace': '' if robot_name == '/' else robot_name,
-            'use_namespace': use_namespace,
-            'frame_prefix': frame_prefix,
-            'use_sim_time': 'true' if sim == 'true' else 'false',
-            'use_rviz': 'false',
-            'use_gui': 'false',
-        }.items(),
-    )
+    jetauto_peripherals_package_path = get_package_share_directory('jetauto_peripherals')
 
     depth_camera_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(peripherals_package_path, 'launch/depth_camera.launch.py')),
+            os.path.join(jetauto_peripherals_package_path, 'launch/depth_camera.launch.py')),
         condition=IfCondition(use_depth_camera),
         launch_arguments={
             'depth_camera_name': depth_camera_name,
@@ -54,9 +37,9 @@ def launch_setup(context):
     )
 
     return [
-        sim_arg, master_name_arg, robot_name_arg, depth_camera_name_arg, 
+        sim_arg, master_name_arg, robot_name_arg, depth_camera_name_arg,
         use_joy_arg, use_depth_camera_arg, action_name_arg,
-        robot_description_launch, depth_camera_launch
+        depth_camera_launch
     ]
 
 def generate_launch_description():
@@ -65,9 +48,4 @@ def generate_launch_description():
     ])
 
 if __name__ == '__main__':
-    # 创建一个LaunchDescription对象(Create a LaunchDescription object)
     ld = generate_launch_description()
-
-    ls = LaunchService()
-    ls.include_launch_description(ld)
-    ls.run()

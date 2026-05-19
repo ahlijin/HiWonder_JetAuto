@@ -14,7 +14,6 @@ else:
 if os.name != 'nt':
     settings = termios.tcgetattr(sys.stdin)
 
-machine_type = os.environ.get('MACHINE_TYPE')
 LIN_VEL = 0.2
 ANG_VEL = 0.5
 

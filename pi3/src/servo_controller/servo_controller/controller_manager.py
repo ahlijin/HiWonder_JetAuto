@@ -10,18 +10,57 @@ import threading
 from rclpy.node import Node
 from std_srvs.srv import Trigger
 from sensor_msgs.msg import JointState
-from servo_controller.servo_controller import ServoManager
 from servo_controller.joint_position_controller import JointPositionController
 from servo_controller_msgs.msg import ServosPosition, ServoState, ServoStateList
-from servo_controller.joint_trajectory_action_controller import JointTrajectoryActionController
+from ros_robot_controller_msgs.srv import GetBusServoState
+from ros_robot_controller_msgs.msg import ServoPosition, ServosPosition as HW_ServosPosition
+
+
+class ServoState:
+    def __init__(self, name=''):
+        self.name = name
+        self.position = 500
+
+
+class ServoManager(Node):
+    def __init__(self, connected_ids={}):
+        super().__init__('servo_manager')
+        self.servos = {}
+        self.connected_ids = connected_ids
+        for i in connected_ids:
+            self.servos[i] = ServoState(connected_ids[i])
+        self.servo_position_pub = self.create_publisher(HW_ServosPosition, 'ros_robot_controller/bus_servo/set_position', 1)
+        self.client = self.create_client(GetBusServoState, 'ros_robot_controller/bus_servo/get_state')
+        self.client.wait_for_service()
+        self.get_logger().info('\033[1;32m%s\033[0m' % 'start')
+
+    def connect(self):
+        pass
+
+    def get_position(self):
+        return self.servos
+
+    def set_position(self, duration, position):
+        duration = 0.02 if duration < 0.02 else 30 if duration > 30 else duration
+        msg = HW_ServosPosition()
+        msg.duration = float(duration)
+        for i in position:
+            pos = int(i.position)
+            pos = 0 if pos < 0 else 1000 if pos > 1000 else pos
+            self.servos[str(i.id)].position = pos
+            servo_msg = ServoPosition()
+            servo_msg.id = i.id
+            servo_msg.position = pos
+            msg.position.append(servo_msg)
+        self.servo_position_pub.publish(msg)
+
 
 class ControllerManager(Node):
     def __init__(self, name):
         rclpy.init()
-        super().__init__(name, allow_undeclared_parameters=True, automatically_declare_parameters_from_overrides=True)  # 允许未声明的参数
-        self.machine_type = os.environ['MACHINE_TYPE']
+        super().__init__(name, allow_undeclared_parameters=True, automatically_declare_parameters_from_overrides=True)
         
-        self.joints = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'r_joint']       
+        self.joints = ['joint1']       
 
         # 读取配置参数(Read configuration parameters)
         self.base_frame = self.get_parameter('base_frame').value
@@ -37,12 +76,7 @@ class ControllerManager(Node):
 
         # 实例化舵机管理节点(Instantiate the servo management node)
         self.servo_manager = ServoManager(connected_ids)
-        self.servo_manager.connect()  # 检查是否有给定的舵机已连接(Check if the specified servos are connected)
-
-        for i in ['arm_controller', 'gripper_controller']:
-            controller = self.get_parameters_by_prefix(i)
-            controllers = [self.controllers[joint_name] for joint_name in controller['joint_controllers'].value]
-            self.controllers[i] = JointTrajectoryActionController(self.servo_manager, i, controllers)
+        self.servo_manager.connect()
 
         self.joint_states_pub = self.create_publisher(JointState, '~/joint_states', 1)
         self.servo_states_pub = self.create_publisher(ServoStateList, '~/servo_states', 1)
