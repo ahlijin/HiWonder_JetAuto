@@ -19,9 +19,10 @@ ANG_VEL = 1.0
 msg = """
 Control Your Robot from Jetson!
 ---------------------------
-Moving around:
-        w
-   a    s    d
+  w
+a  s  d   q/e rotate
+  x
+Press and hold to move, release to stop
 CTRL-C to quit
 """
 
@@ -60,6 +61,7 @@ class TeleopControl(Node):
         while rclpy.ok():
             key = getKey(settings)
             twist = Twist()
+            moving = True
             if key == 'w':
                 twist.linear.x = LIN_VEL
             elif key == 'x':
@@ -72,11 +74,16 @@ class TeleopControl(Node):
                 twist.angular.z = ANG_VEL
             elif key == 'e':
                 twist.angular.z = -ANG_VEL
-            elif key == 's':
-                pass
             else:
-                continue
-            self.cmd_vel.publish(twist)
+                moving = False
+
+            if moving:
+                self.cmd_vel.publish(twist)
+            else:
+                twist.linear.x = 0.0
+                twist.linear.y = 0.0
+                twist.angular.z = 0.0
+                self.cmd_vel.publish(twist)
         rclpy.shutdown()
 
 def main():

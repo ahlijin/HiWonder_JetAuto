@@ -30,6 +30,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
     "msg/SetBusServoState.msg"
     "msg/ServoPosition.msg"
     "msg/ServosPosition.msg"
+    "msg/ServoState.msg"
+    "msg/ServoStateList.msg"
     "msg/SetPWMServoState.msg"
     "msg/GetBusServoCmd.msg"
     "msg/GetPWMServoCmd.msg"

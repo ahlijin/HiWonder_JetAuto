@@ -2,7 +2,7 @@
 import sys
 import rclpy
 from rclpy.node import Node
-from servo_controller_msgs.msg import ServosPosition, ServoPosition
+from ros_robot_controller_msgs.msg import ServosPosition, ServoPosition
 
 
 class ServoControl(Node):

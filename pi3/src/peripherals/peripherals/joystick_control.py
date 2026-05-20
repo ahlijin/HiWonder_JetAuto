@@ -10,7 +10,7 @@ from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 from ros_robot_controller_msgs.msg import BuzzerState
 from servo_controller.bus_servo_control import set_servo_position
-from servo_controller_msgs.msg import ServosPosition, ServoPosition
+from ros_robot_controller_msgs.msg import ServosPosition, ServoPosition
 
 AXES_MAP = 'lx', 'ly', 'rx', 'ry', 'r2', 'l2', 'hat_x', 'hat_y'
 BUTTON_MAP = 'cross', 'circle', '', 'square', 'triangle', '', 'l1', 'r1', 'l2', 'r2', 'select', 'start', '', 'l3', 'r3', '', 'hat_xl', 'hat_xr', 'hat_yu', 'hat_yd', ''

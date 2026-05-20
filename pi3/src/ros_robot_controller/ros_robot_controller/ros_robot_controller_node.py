@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # encoding: utf-8
-# @Author: Aiden
-# @Date: 2023/08/28
 # stm32 ros2 package
 import math
 import time

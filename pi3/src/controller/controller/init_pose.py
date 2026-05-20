@@ -3,7 +3,7 @@
 import rclpy
 from rclpy.node import Node
 from std_srvs.srv import Trigger
-from servo_controller_msgs.msg import ServosPosition, ServoPosition
+from ros_robot_controller_msgs.msg import ServosPosition, ServoPosition
 
 class InitPose(Node):
     def __init__(self, name):

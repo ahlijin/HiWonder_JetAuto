@@ -4,7 +4,7 @@
   <name>ros_robot_controller_msgs</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="1270161395@qq.com">ubuntu</maintainer>
+  <maintainer email="todo@todo.com">ubuntu</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

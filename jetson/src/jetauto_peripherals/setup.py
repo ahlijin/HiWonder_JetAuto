@@ -20,7 +20,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='ubuntu',
-    maintainer_email='1270161395@qq.com',
+    maintainer_email='todo@todo.com',
     description='Jetson peripherals for JetAuto (teleop, servo control, depth camera)',
     license='TODO: License declaration',
     tests_require=['pytest'],

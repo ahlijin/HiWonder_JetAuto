@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # encoding: utf-8
-# @Author: Aiden
-# @Date: 2023/11/10
-from servo_controller_msgs.msg import ServoPosition, ServosPosition
+from ros_robot_controller_msgs.msg import ServoPosition, ServosPosition
 
 def set_servo_position(pub, duration, positions):
     msg = ServosPosition()

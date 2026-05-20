@@ -1,2 +1,2 @@
 uint16 id
-uint16 position
+float32 position

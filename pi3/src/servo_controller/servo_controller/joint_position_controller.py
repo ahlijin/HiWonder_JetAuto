@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # encoding: utf-8
-# @Author: Aiden
-# @Date: 2023/11/10
 import math
 # from rclpy.node import Node
 

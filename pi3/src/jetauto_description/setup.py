@@ -23,7 +23,7 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='ubuntu',
-    maintainer_email='1270161395@qq.com',
+    maintainer_email='todo@todo.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     entry_points={
