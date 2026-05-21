@@ -15,11 +15,14 @@ def launch_setup(context):
             os.path.join(jetauto_peripherals_package_path, 'launch/depth_camera.launch.py')),
     )
 
-    lidar_receiver_node = Node(
-        package='lidar_receiver',
-        executable='lidar_receiver_node',
-        name='lidar_receiver',
+    laser_filters_config = os.path.join(slam_package_path, 'config/lidar_filters_config.yaml')
+    laser_filter_node = Node(
+        package='laser_filters',
+        executable='scan_to_scan_filter_chain',
         output='screen',
+        parameters=[laser_filters_config, {'hw_id': 'none'}],
+        remappings=[('scan', 'scan_raw'),
+                    ('scan_filtered', 'scan')]
     )
 
     slam_launch = IncludeLaunchDescription(
@@ -29,7 +32,7 @@ def launch_setup(context):
 
     return [
         depth_camera_launch,
-        lidar_receiver_node,
+        laser_filter_node,
         slam_launch,
     ]
 

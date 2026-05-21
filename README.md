@@ -59,7 +59,8 @@ Jetson 侧主要承担计算密集型和感知决策类任务：
 │  ├─ 0.9.1.md
 │  ├─ 0.9.2.md
 │  ├─ 0.9.3.md
-│  └─ 0.9.4.md
+│  ├─ 0.9.4.md
+│  └─ 0.9.5.md
 └─ README.md
 
 ---
@@ -74,7 +75,6 @@ Jetson 侧主要承担计算密集型和感知决策类任务：
 - `controller/`：底盘控制（Mecanum 运动学、里程计发布）
 - `sdk/`：硬件驱动工具函数（`common.py`）
 - `ros_robot_controller/`：控制板通信与状态收发（电机、舵机、IMU、按键）
-- `lidar_bridge/`：雷达桥接，将 `/scan_raw` 转发为 `/pi3/scan` 供 Jetson 使用
 - `sllidar_ros2/`：激光雷达 ROS2 驱动
 - `jetauto_description/`：机器人模型、URDF、STL 模型文件
 - `servo_controller/`：舵机控制器（转向舵机管理）
@@ -95,7 +95,6 @@ Pi3 侧的核心定位是：
 - `jetauto_peripherals/`：Jetson 侧外设接入（深度相机 launch、键盘遥控、舵机控制）
 - `slam/`：SLAM 启动、配置、建图相关资源
 - `navigation/`：导航、定位、参数与可视化配置
-- `lidar_receiver/`：接收并滤波 Pi3 转发来的雷达数据
 - `orbbec_ws/`：Orbbec 深度相机驱动（Git submodule）
 - `interfaces/`、`ros_robot_controller_msgs/`：复用的接口定义
 
@@ -235,3 +234,4 @@ Jetson 侧除 Pi3 侧大部分基础包外，额外需要：
 - `Changelog/0.9.2.md`
 - `Changelog/0.9.3.md`
 - `Changelog/0.9.4.md`
+- `Changelog/0.9.5.md`

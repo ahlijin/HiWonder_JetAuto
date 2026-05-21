@@ -21,17 +21,6 @@ def launch_setup(context):
             os.path.join(peripherals_package_path, 'launch/lidar.launch.py')),
     )
 
-    lidar_bridge_node = Node(
-        package='lidar_bridge',
-        executable='lidar_bridge_node',
-        name='lidar_bridge',
-        parameters=[{
-            'input_topic': 'scan_raw',
-            'output_topic': '/pi3/scan'
-        }],
-        output='screen',
-    )
-
     joystick_control_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(peripherals_package_path, 'launch/joystick_control.launch.py')),
@@ -56,7 +45,6 @@ def launch_setup(context):
         startup_check_node,
         controller_launch,
         lidar_launch,
-        lidar_bridge_node,
         joystick_control_launch,
         robot_description_launch,
     ]
