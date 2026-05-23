@@ -46,7 +46,8 @@ Jetson 侧主要承担计算密集型和感知决策类任务：
 .
 ├─ pi3/
 │  ├─ pi3_start.sh
-│  └─ src/
+│  ├─ src/
+│  └─ doc/
 ├─ jetson/
 │  ├─ jetson_start.sh          # 无界面 SLAM 启动（ssh 用）
 │  ├─ jetson_slam.sh           # 桌面 SLAM 启动（含 RViz + 地图保存）
@@ -60,7 +61,8 @@ Jetson 侧主要承担计算密集型和感知决策类任务：
 │  ├─ 0.9.2.md
 │  ├─ 0.9.3.md
 │  ├─ 0.9.4.md
-│  └─ 0.9.5.md
+│  ├─ 0.9.5.md
+│  └─ 0.9.6.md
 └─ README.md
 
 ---
@@ -73,7 +75,6 @@ Jetson 侧主要承担计算密集型和感知决策类任务：
 
 - `bringup/`：Pi3 侧整体启动组织
 - `controller/`：底盘控制（Mecanum 运动学、里程计发布）
-- `sdk/`：硬件驱动工具函数（`common.py`）
 - `ros_robot_controller/`：控制板通信与状态收发（电机、舵机、IMU、按键）
 - `sllidar_ros2/`：激光雷达 ROS2 驱动
 - `jetauto_description/`：机器人模型、URDF、STL 模型文件
@@ -235,3 +236,4 @@ Jetson 侧除 Pi3 侧大部分基础包外，额外需要：
 - `Changelog/0.9.3.md`
 - `Changelog/0.9.4.md`
 - `Changelog/0.9.5.md`
+- `Changelog/0.9.6.md`

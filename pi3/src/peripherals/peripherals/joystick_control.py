@@ -4,13 +4,16 @@ import math
 import rclpy
 from enum import Enum
 from rclpy.node import Node
-from sdk.common import val_map
 from std_srvs.srv import Trigger
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 from ros_robot_controller_msgs.msg import BuzzerState
 from servo_controller.bus_servo_control import set_servo_position
 from ros_robot_controller_msgs.msg import ServosPosition, ServoPosition
+
+
+def val_map(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 AXES_MAP = 'lx', 'ly', 'rx', 'ry', 'r2', 'l2', 'hat_x', 'hat_y'
 BUTTON_MAP = 'cross', 'circle', '', 'square', 'triangle', '', 'l1', 'r1', 'l2', 'r2', 'select', 'start', '', 'l3', 'r3', '', 'hat_xl', 'hat_xr', 'hat_yu', 'hat_yd', ''

@@ -7,8 +7,6 @@
   <maintainer email="todo@todo.com">ubuntu</maintainer>
   <license>TODO: License declaration</license>
 
-  <depend>sdk</depend>
-
   <export>
     <build_type>ament_python</build_type>
   </export>
