@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="jetauto" xmlns:xacro="http://ros.org/wiki/xacro">
+    <xacro:include filename="$(find jetauto_description)/urdf/materials.xacro"/>
+    <xacro:include filename="$(find jetauto_description)/urdf/inertial_matrix.xacro" />
+
+    <xacro:include filename="$(find jetauto_description)/urdf/imu.urdf.xacro"/>
+
+    <xacro:include filename="$(find jetauto_description)/urdf/lidar.urdf.xacro"/>
+    <xacro:include filename="$(find jetauto_description)/urdf/lidar_a1.urdf.xacro"/>
+
+    <xacro:include filename="$(find jetauto_description)/urdf/pro/jetauto_car.urdf.xacro"/>
+    <xacro:include filename="$(find jetauto_description)/urdf/pro/jetauto_arm.urdf.xacro"/>
+    <xacro:include filename="$(find jetauto_description)/urdf/pro/gripper.urdf.xacro"/>
+    <xacro:include filename="$(find jetauto_description)/urdf/pro/usb_camera.urdf.xacro"/>
+    <xacro:include filename="$(find jetauto_description)/urdf/pro/screen.urdf.xacro"/>
+    <xacro:include filename="$(find jetauto_description)/urdf/pro/depth_camera.urdf.xacro"/>
+    <xacro:include filename="$(find jetauto_description)/urdf/pro/aerial.urdf.xacro"/>
+    <xacro:include filename="$(find jetauto_description)/urdf/pro/depth_camera_connect.urdf.xacro"/>
+</robot>

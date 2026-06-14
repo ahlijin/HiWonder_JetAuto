@@ -1,0 +1,6 @@
+[submodule "pi3/src/sllidar_ros2"]
+	path = pi3/src/sllidar_ros2
+	url = https://github.com/Slamtec/sllidar_ros2.git
+[submodule "jetson/src/orbbec_ws"]
+	path = jetson/src/orbbec_ws
+	url = https://github.com/orbbec/ros2_astra_camera
