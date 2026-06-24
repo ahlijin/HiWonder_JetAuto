@@ -24,6 +24,7 @@ def main():
     msg.off_time = 0.01
     msg.repeat = 1
     buzzer_pub.publish(msg)
+    time.sleep(0.5)
 
 if __name__ == '__main__':
     main()

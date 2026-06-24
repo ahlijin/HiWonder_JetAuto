@@ -48,7 +48,7 @@ class ServoManager(Node):
             self.servos[str(i.id)].position = pos
             servo_msg = ServoPosition()
             servo_msg.id = i.id
-            servo_msg.position = pos
+            servo_msg.position = float(pos)
             msg.position.append(servo_msg)
         self.servo_position_pub.publish(msg)
 
@@ -72,7 +72,7 @@ class ControllerManager(Node):
             controller = JointPositionController(joint, i)
             self.controllers[i] = controller
 
-        # 实例化舵机管理节�?Instantiate the servo management node)
+        # 实例化舵机管理节�?Instantiate the servo management node)
         self.servo_manager = ServoManager(connected_ids)
         self.servo_manager.connect()
 
@@ -146,7 +146,7 @@ class ControllerManager(Node):
 
 def main():
     node = ControllerManager('controller_manager')
-    rclpy.spin(node)  # 循环等待ROS2退�?Loop and wait for ROS2 to exit)
+    rclpy.spin(node)  # 循环等待ROS2退�?Loop and wait for ROS2 to exit)
 
 if __name__ == "__main__":
     main()

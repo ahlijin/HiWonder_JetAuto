@@ -21,6 +21,10 @@ class RosRobotController(Node):
         super().__init__(name)
         self.board = Board()
         self.board.enable_reception()
+        time.sleep(0.3)
+        # 启动时使能总线舵机扭矩，否则舵机不会响应位置指令
+        self.board.bus_servo_enable_torque(1, 1)
+        time.sleep(0.2)
         self.running = True
 
         # 声明参数
@@ -117,7 +121,7 @@ class RosRobotController(Node):
     def set_bus_servo_position(self, msg):
         data = []
         for i in msg.position:
-            data.extend([[i.id, i.position]])
+            data.extend([[i.id, int(i.position)]])
         if data:
             self.board.bus_servo_set_position(msg.duration, data)
 
