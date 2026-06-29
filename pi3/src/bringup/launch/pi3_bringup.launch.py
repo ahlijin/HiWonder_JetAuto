@@ -10,7 +10,7 @@ def launch_setup(context):
     controller_package_path = get_package_share_directory('controller')
     peripherals_package_path = get_package_share_directory('peripherals')
     description_package_path = get_package_share_directory('jetauto_description')
-
+    
     controller_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(controller_package_path, 'launch/controller.launch.py')),

@@ -52,8 +52,11 @@ class JoystickController(Node):
         self.servo_position = 500  # 当前位置（初始位置）
         self.servo_home_position = 500      # 原位
         self.servo_step = 62       # 每步脉冲数（约15度）
+        self.servo_hold_step = 5   # 长按连续转动时每步脉冲数（细腻平滑）
         self.servo_min = 0         # 最小位置
         self.servo_max = 1000      # 最大位置
+        self._servo_direction = 0  # 当前转动方向: 1=左, -1=右, 0=停止
+        self._servo_tap = False    # True=单次点击还未触发移动
         
         self.create_service(Trigger, '~/init_finish', self.get_node_state)
         self.get_logger().info('\033[1;32m%s\033[0m' % 'start')
@@ -94,37 +97,77 @@ class JoystickController(Node):
         pass
 
     def square_callback(self, new_state):
-        # 右左键：舵机左转15度（累积式）
+        # 右左键：舵机左转（累积式）
+        # 按下不动→等待松开判断是tap还是hold
         if new_state == ButtonState.Pressed:
-            self.servo_position += self.servo_step
-            # 限制范围
+            self._servo_direction = 1
+            self._servo_tap = True  # 标记为可能的单次点击
+        elif new_state == ButtonState.Holding:
+            if self._servo_tap:
+                self._servo_tap = False  # 进入长按，取消tap标记
+            # 每帧微调，平滑连续转动
+            self.servo_position += self.servo_hold_step
             if self.servo_position > self.servo_max:
                 self.servo_position = self.servo_max
-            set_servo_position(self.joints_pub, 0.3, ((1, self.servo_position),))
-            self.get_logger().info(f'Servo turned right, current position: {self.servo_position}')
+            set_servo_position(self.joints_pub, 0.05, ((1, self.servo_position),))
+        elif new_state == ButtonState.Released:
+            if self._servo_tap:
+                # 快速点击：走一大步
+                self.servo_position += self.servo_step
+                if self.servo_position > self.servo_max:
+                    self.servo_position = self.servo_max
+                set_servo_position(self.joints_pub, 0.3, ((1, self.servo_position),))
+                self.get_logger().info(f'Servo turned right, current position: {self.servo_position}')
+            else:
+                # 长按结束：快速停住
+                set_servo_position(self.joints_pub, 0.05, ((1, self.servo_position),))
+            self._servo_direction = 0
+            self._servo_tap = False
 
     def cross_callback(self, new_state):
         # 右下键：舵机返回原位
         if new_state == ButtonState.Pressed:
+            dist = abs(self.servo_position - self.servo_home_position)
+            duration = max(0.1, dist / 200.0)  # 200脉冲/秒匀速（hold的2倍）
             self.servo_position = self.servo_home_position
-            set_servo_position(self.joints_pub, 0.3, ((1, self.servo_position),))
+            set_servo_position(self.joints_pub, duration, ((1, self.servo_position),))
             self.get_logger().info(f'Servo returned to home position: {self.servo_position}')
 
     def circle_callback(self, new_state):
-        # 右右键：舵机右转15度（累积式）
+        # 右右键：舵机右转（累积式）
+        # 按下不动→等待松开判断是tap还是hold
         if new_state == ButtonState.Pressed:
-            self.servo_position -= self.servo_step
-            # 限制范围
+            self._servo_direction = -1
+            self._servo_tap = True  # 标记为可能的单次点击
+        elif new_state == ButtonState.Holding:
+            if self._servo_tap:
+                self._servo_tap = False  # 进入长按，取消tap标记
+            # 每帧微调，平滑连续转动
+            self.servo_position -= self.servo_hold_step
             if self.servo_position < self.servo_min:
                 self.servo_position = self.servo_min
-            set_servo_position(self.joints_pub, 0.3, ((1, self.servo_position),))
-            self.get_logger().info(f'Servo turned left, current position: {self.servo_position}')
+            set_servo_position(self.joints_pub, 0.05, ((1, self.servo_position),))
+        elif new_state == ButtonState.Released:
+            if self._servo_tap:
+                # 快速点击：走一大步
+                self.servo_position -= self.servo_step
+                if self.servo_position < self.servo_min:
+                    self.servo_position = self.servo_min
+                set_servo_position(self.joints_pub, 0.3, ((1, self.servo_position),))
+                self.get_logger().info(f'Servo turned left, current position: {self.servo_position}')
+            else:
+                # 长按结束：快速停住
+                set_servo_position(self.joints_pub, 0.05, ((1, self.servo_position),))
+            self._servo_direction = 0
+            self._servo_tap = False
 
     def triangle_callback(self, new_state):
         # 右上键：舵机返回原位
         if new_state == ButtonState.Pressed:
+            dist = abs(self.servo_position - self.servo_home_position)
+            duration = max(0.1, dist / 200.0)  # 200脉冲/秒匀速（hold的2倍）
             self.servo_position = self.servo_home_position
-            set_servo_position(self.joints_pub, 0.3, ((1, self.servo_position),))
+            set_servo_position(self.joints_pub, duration, ((1, self.servo_position),))
             self.get_logger().info(f'Servo returned to home position: {self.servo_position}')
 
     def start_callback(self, new_state):
@@ -172,7 +215,9 @@ class JoystickController(Node):
                 new_state = ButtonState.Holding if value > 0 else ButtonState.Normal
             callback = "".join([key, '_callback'])
             if new_state != ButtonState.Normal:
-                self.get_logger().info(str(new_state))
+                # 仅Press和Release时打日志，避免长按Holding刷屏
+                if new_state in (ButtonState.Pressed, ButtonState.Released):
+                    self.get_logger().info(str(new_state))
                 if  hasattr(self, callback):
                     try:
                         getattr(self, callback)(new_state)

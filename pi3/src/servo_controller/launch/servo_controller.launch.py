@@ -5,7 +5,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
-    base_frame = LaunchConfiguration('base_frame', default='')
+    base_frame = LaunchConfiguration('base_frame', default='base_link')
     base_frame_arg = DeclareLaunchArgument('base_frame', default_value=base_frame)
 
     # Get package paths using abspath
@@ -15,7 +15,11 @@ def generate_launch_description():
         package='servo_controller',
         executable='servo_controller',
         output='screen',
-        parameters=[os.path.join(servo_controller_package_path, 'config/servo_controller.yaml'), {'base_frame': base_frame}]
+        parameters=[{'base_frame': base_frame},
+                    {'joint1.id': 1},
+                    {'joint1.init': 500},
+                    {'joint1.min': 1000},
+                    {'joint1.max': 0}]
     )
 
     return LaunchDescription([

@@ -86,6 +86,11 @@ sudo apt purge apparmor -y
     irqbalance.service \
     networkd-dispatcher.service
   ```
+- **禁用 networkd-wait-online**（WiFi 已连，无需等待 eth0，可省约 2 分钟启动时间）：
+  ```bash
+  sudo systemctl disable systemd-networkd-wait-online.service
+  sudo systemctl mask systemd-networkd-wait-online.service
+  ```
 - **可选禁用**（按需）：
   - `cron.service`（如果没有定时任务）
   - `systemd-timesyncd.service`（如果不介意时间不准）

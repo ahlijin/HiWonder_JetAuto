@@ -22,7 +22,6 @@ setup(
     entry_points={
         'console_scripts': [
             'ros_robot_controller = ros_robot_controller.ros_robot_controller_node:main',
-            'imu_node = ros_robot_controller.imu_node:main',
         ],
     },
 )

@@ -142,7 +142,7 @@ class ControllerManager(Node):
                 servos_msg.servo_state.append(servo_msg)
             self.joint_states_pub.publish(msg)
             self.servo_states_pub.publish(servos_msg)
-            time.sleep(0.02)
+            time.sleep(0.05)  # 从50Hz降至20Hz，降低CPU占用
 
 def main():
     node = ControllerManager('controller_manager')

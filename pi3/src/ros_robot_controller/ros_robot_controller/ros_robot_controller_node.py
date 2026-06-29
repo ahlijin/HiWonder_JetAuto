@@ -26,6 +26,7 @@ class RosRobotController(Node):
         self.board.bus_servo_enable_torque(1, 1)
         time.sleep(0.2)
         self.running = True
+        self._battery_counter = 0  # 电池采样计数器，降低查询频率
 
         # 声明参数
         self.declare_parameter('imu_frame', 'imu_link')
@@ -62,14 +63,20 @@ class RosRobotController(Node):
     def pub_callback(self):
         while self.running:
             if self.enable_reception:
-                self.pub_button_data(self.button_pub)
-                self.pub_joy_data(self.joy_pub)
-                self.pub_imu_data(self.imu_pub)
-                self.pub_sbus_data(self.sbus_pub)
-                self.pub_battery_data(self.battery_pub)
-                time.sleep(0.02)
+                # 仅在有订阅者时发布，减少不必要的I2C读取
+                if self.button_pub.get_subscription_count() > 0:
+                    self.pub_button_data(self.button_pub)
+                if self.joy_pub.get_subscription_count() > 0:
+                    self.pub_joy_data(self.joy_pub)
+                if self.imu_pub.get_subscription_count() > 0:
+                    self.pub_imu_data(self.imu_pub)
+                if self.sbus_pub.get_subscription_count() > 0:
+                    self.pub_sbus_data(self.sbus_pub)
+                if self.battery_pub.get_subscription_count() > 0:
+                    self.pub_battery_data(self.battery_pub)
+                time.sleep(0.05)  # 从50Hz降至20Hz，降低CPU占用
             else:
-                time.sleep(0.02)
+                time.sleep(0.05)  # 从50Hz降至20Hz，降低CPU占用
         rclpy.shutdown()
 
     def enable_reception(self, msg):
@@ -210,11 +217,15 @@ class RosRobotController(Node):
         return response
 
     def pub_battery_data(self, pub):
-        data = self.board.get_battery()
-        if data is not None:
-            msg = UInt16()
-            msg.data = data
-            pub.publish(msg)
+        self._battery_counter += 1
+        # 每50次采样才实际读取电池（约2.5秒一次，20Hz下），减少I2C查询
+        if self._battery_counter >= 50:
+            self._battery_counter = 0
+            data = self.board.get_battery()
+            if data is not None:
+                msg = UInt16()
+                msg.data = data
+                pub.publish(msg)
 
     def pub_button_data(self, pub):
         data = self.board.get_button()

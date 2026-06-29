@@ -233,7 +233,7 @@ class Controller(Node):
             # self.odom_broadcaster.sendTransform(self.odom_trans)
             self.odom_pub.publish(self.odom)
             self.last_time = self.current_time
-            time.sleep(0.02)
+            time.sleep(0.05)  # 从50Hz降至20Hz，降低CPU占用
 
 def main():
     node = Controller('odom_publisher')
