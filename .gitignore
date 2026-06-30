@@ -14,6 +14,9 @@ install/
 Log/
 *.log.txt
 
+# macOS metadata
+.DS_Store
+
 # Local build / debug artifacts
 jetson_build_status.txt
 jetson_colcon_build.exit
