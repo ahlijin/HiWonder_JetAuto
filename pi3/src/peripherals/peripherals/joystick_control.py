@@ -53,8 +53,8 @@ class JoystickController(Node):
         self.servo_home_position = 500      # 原位
         self.servo_step = 62       # 每步脉冲数（约15度）
         self.servo_hold_step = 5   # 长按连续转动时每步脉冲数（细腻平滑）
-        self.servo_min = 0         # 最小位置
-        self.servo_max = 1000      # 最大位置
+        self.servo_min = 312         # 最小位置（±45°限幅）
+        self.servo_max = 688      # 最大位置（±45°限幅）
         self._servo_direction = 0  # 当前转动方向: 1=左, -1=右, 0=停止
         self._servo_tap = False    # True=单次点击还未触发移动
         

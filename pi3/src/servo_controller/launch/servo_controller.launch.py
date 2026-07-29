@@ -18,8 +18,8 @@ def generate_launch_description():
         parameters=[{'base_frame': base_frame},
                     {'joint1.id': 1},
                     {'joint1.init': 500},
-                    {'joint1.min': 1000},
-                    {'joint1.max': 0}]
+                    {'joint1.min': 688},
+                    {'joint1.max': 312}]
     )
 
     return LaunchDescription([

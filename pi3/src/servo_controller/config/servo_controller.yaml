@@ -3,5 +3,5 @@
     joint1:
       id: 1
       init: 500
-      min: 1000
-      max: 0
+      min: 688
+      max: 312

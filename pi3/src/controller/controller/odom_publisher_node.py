@@ -12,6 +12,7 @@ from std_srvs.srv import Trigger
 from nav_msgs.msg import Odometry
 from ros_robot_controller_msgs.msg import MotorsState, BusServoState, SetBusServoState 
 from geometry_msgs.msg import Pose2D, Pose, Twist, PoseWithCovarianceStamped, TransformStamped
+from sensor_msgs.msg import LaserScan
 
 ODOM_POSE_COVARIANCE = list(map(float, 
                         [1e-3, 0, 0, 0, 0, 0, 
@@ -91,6 +92,10 @@ class Controller(Node):
         self.declare_parameter('odom_frame_id', 'odom')
         self.declare_parameter('linear_correction_factor', 1.00)
         self.declare_parameter('angular_correction_factor', 1.00)
+        self.declare_parameter('safety_enabled', True)
+        self.declare_parameter('safety_stop_distance', 0.15)
+        self.declare_parameter('safety_slow_distance', 0.30)
+        self.declare_parameter('safety_forward_angle', 30.0)  # ±度，前方检测范围
         
         self.pub_odom_topic = self.get_parameter('pub_odom_topic').value
         self.base_frame_id = self.get_parameter('base_frame_id').value
@@ -101,11 +106,6 @@ class Controller(Node):
 
         self.clock = self.get_clock() 
         if self.pub_odom_topic:
-            # self.odom_broadcaster = tf2_ros.TransformBroadcaster(self)  # 定义TF变换广播者(Define a TF transform broadcaster)
-            # self.odom_trans = TransformStamped()
-            # self.odom_trans.header.frame_id = self.odom_frame_id
-            # self.odom_trans.child_frame_id = self.base_frame_id
-            
             self.odom = Odometry()
             self.odom.header.frame_id = self.odom_frame_id
             self.odom.child_frame_id = self.base_frame_id
@@ -124,7 +124,16 @@ class Controller(Node):
         self.create_subscription(Pose2D, 'set_odom', self.set_odom, 1)
         self.create_subscription(Twist, 'controller/cmd_vel', self.cmd_vel_callback, 1)
         self.create_subscription(Twist, 'cmd_vel', self.app_cmd_vel_callback, 1)
+        self.create_subscription(LaserScan, 'scan_raw', self.scan_callback, 1)
         self.create_service(Trigger, 'controller/load_calibrate_param', self.load_calibrate_param)
+
+        # 安全保护参数
+        self.safety_enabled = self.get_parameter('safety_enabled').value
+        self.safety_stop_distance = self.get_parameter('safety_stop_distance').value
+        self.safety_slow_distance = self.get_parameter('safety_slow_distance').value
+        self.safety_forward_angle = self.get_parameter('safety_forward_angle').value
+        self.front_distance = float('inf')
+        self.scan_received = False
 
         self.create_service(Trigger, '~/init_finish', self.get_node_state)
         self.get_logger().info('\033[1;32m%s\033[0m' % 'start')
@@ -151,7 +160,6 @@ class Controller(Node):
         self.odom.child_frame_id = self.base_frame_id
         
         self.odom.pose.covariance = ODOM_POSE_COVARIANCE
-        self.odom.twist.covariance = ODOM_TWIST_COVARIANCE
         self.odom.pose.pose.position.x = msg.x
         self.odom.pose.pose.position.y = msg.y
         self.pose_yaw = msg.theta
@@ -167,6 +175,54 @@ class Controller(Node):
         pose.pose.pose = self.odom.pose.pose
         pose.pose.covariance = ODOM_POSE_COVARIANCE
         self.pose_pub.publish(pose)
+
+    def scan_callback(self, msg):
+        """Store minimum forward distance from LiDAR scan.
+           Note: LiDAR frame is rotated 180° vs base_link, so forward = angle ~π."""
+        if not msg.ranges:
+            return
+        angle_rad = math.radians(self.safety_forward_angle)
+        min_dist = float('inf')
+        for i, r in enumerate(msg.ranges):
+            if r <= msg.range_min or r >= msg.range_max:
+                continue
+            angle = msg.angle_min + i * msg.angle_increment
+            # LiDAR 0° = robot back, forward = around π
+            forward_angle = abs(angle - math.pi)
+            # Normalize to [0, π]
+            while forward_angle > math.pi:
+                forward_angle = abs(forward_angle - 2 * math.pi)
+            if forward_angle <= angle_rad:
+                if r < min_dist:
+                    min_dist = r
+        self.front_distance = min_dist
+        self.scan_received = True
+
+    def _check_safety(self, linear_x, linear_y, angular_z):
+        """Apply safety limits based on forward LiDAR distance.
+           Only limits forward movement; backward/lateral/rotation allowed."""
+        if not self.safety_enabled or not self.scan_received:
+            return linear_x, linear_y, angular_z
+
+        fd = self.front_distance
+        if fd > self.safety_slow_distance or linear_x <= 0:
+            return linear_x, linear_y, angular_z
+
+        # 前方有障碍：只限制前进
+        if linear_x > 0:
+            if fd < self.safety_stop_distance:
+                self.get_logger().warn(
+                    f'Collision STOP: front={fd:.2f}m')
+                return 0.0, linear_y, angular_z
+            # 减速区：线性缩放前进速度
+            factor = (fd - self.safety_stop_distance) / \
+                     (self.safety_slow_distance - self.safety_stop_distance)
+            factor = max(0.0, min(1.0, factor))
+            self.get_logger().info(
+                f'Collision SLOW: front={fd:.2f}m factor={factor:.2f}')
+            return linear_x * factor, linear_y, angular_z
+
+        return linear_x, linear_y, angular_z
 
     def app_cmd_vel_callback(self, msg):
         if msg.linear.x > 0.2:
@@ -184,11 +240,14 @@ class Controller(Node):
         self.cmd_vel_callback(msg)
 
     def cmd_vel_callback(self, msg):
-        self.linear_x = msg.linear.x
-        self.linear_y = msg.linear.y
+        # 安全检测
+        lx, ly, az = self._check_safety(
+            msg.linear.x, msg.linear.y, msg.angular.z)
 
-        self.angular_z = msg.angular.z
-        speeds = self.mecanum.set_velocity(self.linear_x, self.linear_y, self.angular_z)
+        self.linear_x = lx
+        self.linear_y = ly
+        self.angular_z = az
+        speeds = self.mecanum.set_velocity(lx, ly, az)
         self.motor_pub.publish(speeds)
 
     def cal_odom_fun(self):
@@ -215,14 +274,8 @@ class Controller(Node):
             self.odom.twist.twist.linear.y = self.linear_y
             self.odom.twist.twist.angular.z = self.angular_z
 
-            # self.odom_trans.header.stamp = self.clock.now().to_msg()
-            # self.odom_trans.transform.translation.x = self.odom.pose.pose.position.x
-            # self.odom_trans.transform.translation.y = self.odom.pose.pose.position.y
-            # self.odom_trans.transform.translation.z = 0.0
-            # self.odom_trans.transform.rotation = self.odom.pose.pose.orientation
-
-            # 如果velocity是零，说明编码器的误差会比较小，认为编码器数据更可靠(If the velocity is zero, it indicates that the encoder's error is likely small, and the encoder data is considered more reliable)
-            # 如果velocity非零，考虑到运动中编码器可能带来的滑动误差，认为imu的数据更可靠(If the velocity is non-zero, considering the potential slip error from the encoder during motion, the IMU data is considered more reliable)
+            # 如果velocity是零，说明编码器的误差会比较小，认为编码器数据更可靠
+            # 如果velocity非零，考虑到运动中编码器可能带来的滑动误差，认为imu的数据更可靠
             if self.linear_x == 0 and self.linear_y == 0 and self.angular_z == 0:
                 self.odom.pose.covariance = ODOM_POSE_COVARIANCE_STOP
                 self.odom.twist.covariance = ODOM_TWIST_COVARIANCE_STOP
@@ -230,14 +283,13 @@ class Controller(Node):
                 self.odom.pose.covariance = ODOM_POSE_COVARIANCE
                 self.odom.twist.covariance = ODOM_TWIST_COVARIANCE
 
-            # self.odom_broadcaster.sendTransform(self.odom_trans)
             self.odom_pub.publish(self.odom)
             self.last_time = self.current_time
             time.sleep(0.05)  # 从50Hz降至20Hz，降低CPU占用
 
 def main():
     node = Controller('odom_publisher')
-    rclpy.spin(node)  # 循环等待ROS2退出(Loop and wait for ROS2 to exit)
+    rclpy.spin(node)  # 循环等待ROS2退出
 
 if __name__ == "__main__":
     main()

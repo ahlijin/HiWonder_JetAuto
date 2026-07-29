@@ -36,9 +36,10 @@ HiWonder_JetAuto/
 - **Shell 脚本**: 头部含注释说明, set -e 错误处理
 - **YAML 配置**: 2空格缩进
 
-## 构建与运行
+## 构建
+
+### 本地开发（NAS/Pi5，快速迭代）
 ```bash
-# 编译前必须 source ROS2 环境
 source /opt/ros/humble/setup.bash
 
 cd /workspace/HiWonder_JetAuto/pi3
@@ -51,9 +52,28 @@ colcon \
   --cmake-args "-DCMAKE_C_COMPILER=/usr/bin/gcc" "-DCMAKE_CXX_COMPILER=/usr/bin/g++"
 ```
 
-## 部署到 Pi3
+### 部署到 Pi3（不带 symlink）
+部署包不含 symlink（symlink 指向本地路径，scp 到 Pi3 后失效），需重新编译。
 ```bash
-scp -r /root/build/HiWonder_JetAuto/pi3/install pi@<pi3-ip>:/home/pi/pi3_ws/
+source /opt/ros/humble/setup.bash
+
+cd /workspace/HiWonder_JetAuto/pi3
+colcon \
+  --log-base /root/build/HiWonder_JetAuto/pi3/build_deploy/log \
+  build \
+  --build-base /root/build/HiWonder_JetAuto/pi3/build_deploy/build \
+  --install-base /root/build/HiWonder_JetAuto/pi3/build_deploy/install \
+  --cmake-args "-DCMAKE_C_COMPILER=/usr/bin/gcc" "-DCMAKE_CXX_COMPILER=/usr/bin/g++"
+
+scp -r /root/build/HiWonder_JetAuto/pi3/build_deploy/install pi@<pi3-ip>:/home/pi/pi3_ws/
+```
+
+也可直接在 Pi3 上编译（推荐，确保原生 ABI）：
+```bash
+# Pi3 上
+source /opt/ros/humble/setup.bash
+cd ~/pi3_ws
+colcon build
 ```
 
 ## 在 Pi3 上运行
