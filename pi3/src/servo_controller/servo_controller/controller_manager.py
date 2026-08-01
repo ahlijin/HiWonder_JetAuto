@@ -112,7 +112,9 @@ class ControllerManager(Node):
         if msg.position_unit == 'pulse':
             for i in msg.position:
                 if str(i.id) in positions:
-                    i.position = max(self.pulse_min, min(self.pulse_max, i.position))
+                    # 强制 float: rosidl 断言 position 必须是 float, int 会导致 AssertionError 进程崩溃
+                    pos = float(i.position)
+                    i.position = float(max(self.pulse_min, min(self.pulse_max, pos)))
                     data.position.append(i)
             self.servo_manager.set_position(msg.duration, data.position)
         elif msg.position_unit == 'rad':

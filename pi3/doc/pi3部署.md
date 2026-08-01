@@ -95,3 +95,59 @@
 - [ ] Jetson 可订阅到 Pi3 的话题（`ROS_DOMAIN_ID=42` 需一致）
 
 ---
+
+---
+
+## 🔧 编译与部署（最新流程 2026-08）
+
+### 编译（开发机 = 宿主机 Pi5 的 my-ros 容器）
+
+> 编译环境是宿主机(Pi5)上的 docker 容器 `my-ros`(ROS2 humble + colcon, aarch64)。
+> 源码在 NAS 上, 直接挂载; 编译产物输出到宿主机本地目录, **勿写回 NAS**。
+
+```bash
+docker run --rm \
+  -v /home/pi/nas/code/HiWonder_JetAuto/pi3:/ws \
+  -v /home/pi/hermes-data/pi3build:/out \
+  my-ros bash -c 'source /opt/ros/humble/setup.bash && cd /ws/src && \
+  colcon --log-base /out/log build --build-base /out/build --install-base /out/install'
+```
+
+**要点:**
+- `docker -v` 挂载的是**宿主机路径**(NAS=/home/pi/nas), 不是容器内 /workspace
+- 源码只读挂载; 产物输出到 /out(=宿主机 /home/pi/hermes-data, 即 Hermes 容器 /opt/data)
+- **不能用 --symlink-install**: 部署靠 scp, 软连接会失效
+- 架构必须与 Pi3 一致(aarch64)
+
+### 部署（install → Pi3）
+
+```bash
+# 编译产物在 Hermes 容器 /opt/data/pi3build/install
+scp -r /tmp/pi3_install pi@192.168.3.64:~/pi3_ws/
+```
+
+**注意**: `scp -r 目录 host:~/pi3_ws/` 当目标目录已存在时, 会创建 `~/pi3_ws/pi3_install`
+而**不是**合并进 `~/pi3_ws/install`。正确替换:
+
+```bash
+mv ~/pi3_ws/install ~/pi3_ws/install.old
+mv ~/pi3_ws/pi3_install ~/pi3_ws/install
+```
+
+确认新代码生效后删掉 `install.old`。
+
+### 舵机控制要点
+
+- 总线舵机脉冲范围 **0-1000(中心 500)**, 机械限位 ±45° = **312-688**
+- `controller_manager` 对上游所有 pulse 指令**硬限幅 312-688** (含手柄/语音/Jetson 直通路径)
+- **已知修复**: 上游若发 int 类型 position, rosidl 断言(position 必须 float)会抛
+  AssertionError 导致 controller_manager 进程崩溃、舵机链路全断 — 已加 `float()` 防御
+- 启动后确认 `controller_manager` 进程在跑: `ps aux | grep controller_manager`
+  (bringup 里它若崩溃不会被自动拉起, 表现为"手柄/语音都控不了舵机")
+
+---
+
+## 📝 变更记录
+
+- **2026-08-01**: controller_manager float() 防御(修 int position 崩溃); 舵机脉冲硬限幅 312-688
+- **2026-07-29 (v0.9.9)**: 舵机限幅 ±45°、LiDAR 防撞保护、pi3_stop.sh
