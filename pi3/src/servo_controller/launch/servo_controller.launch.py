@@ -19,7 +19,9 @@ def generate_launch_description():
                     {'joint1.id': 1},
                     {'joint1.init': 500},
                     {'joint1.min': 688},
-                    {'joint1.max': 312}]
+                    {'joint1.max': 312},
+                    {'pulse_min': 312},
+                    {'pulse_max': 688}]
     )
 
     return LaunchDescription([

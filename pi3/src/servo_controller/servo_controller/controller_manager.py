@@ -72,6 +72,15 @@ class ControllerManager(Node):
             controller = JointPositionController(joint, i)
             self.controllers[i] = controller
 
+        # 物理限位(总线舵机 0-1000,物理 ±45° = 脉冲 312-688)
+        # pulse 直通路径也必须硬限幅,防止上游发越界脉冲撞限位
+        self.pulse_min = 312
+        self.pulse_max = 688
+        if self.has_parameter('pulse_min'):
+            self.pulse_min = int(self.get_parameter('pulse_min').value)
+        if self.has_parameter('pulse_max'):
+            self.pulse_max = int(self.get_parameter('pulse_max').value)
+
         # 实例化舵机管理节�?Instantiate the servo management node)
         self.servo_manager = ServoManager(connected_ids)
         self.servo_manager.connect()
@@ -103,6 +112,7 @@ class ControllerManager(Node):
         if msg.position_unit == 'pulse':
             for i in msg.position:
                 if str(i.id) in positions:
+                    i.position = max(self.pulse_min, min(self.pulse_max, i.position))
                     data.position.append(i)
             self.servo_manager.set_position(msg.duration, data.position)
         elif msg.position_unit == 'rad':

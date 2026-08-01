@@ -1,7 +1,9 @@
-/**:
+/**: 
   ros__parameters:
     joint1:
       id: 1
       init: 500
       min: 688
       max: 312
+    pulse_min: 312
+    pulse_max: 688
