@@ -10,9 +10,9 @@ from rclpy.node import Node
 from controller import mecanum
 from std_srvs.srv import Trigger
 from nav_msgs.msg import Odometry
-from ros_robot_controller_msgs.msg import MotorsState, BusServoState, SetBusServoState 
+from ros_robot_controller_msgs.msg import MotorsState, BusServoState, SetBusServoState, BuzzerState
 from geometry_msgs.msg import Pose2D, Pose, Twist, PoseWithCovarianceStamped, TransformStamped
-from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import LaserScan, Imu
 
 ODOM_POSE_COVARIANCE = list(map(float, 
                         [1e-3, 0, 0, 0, 0, 0, 
@@ -96,6 +96,9 @@ class Controller(Node):
         self.declare_parameter('safety_stop_distance', 0.15)
         self.declare_parameter('safety_slow_distance', 0.30)
         self.declare_parameter('safety_forward_angle', 30.0)  # ±度，前方检测范围
+        self.declare_parameter('safety_side_angle', 30.0)     # ±度，左/右侧检测范围(旋转防撞)
+        self.declare_parameter('stall_angular_threshold', 0.08)  # rad/s, IMU角速度低于此判堵转
+        self.declare_parameter('stall_detect_time', 1.0)         # 秒, 持续时长判堵转
         
         self.pub_odom_topic = self.get_parameter('pub_odom_topic').value
         self.base_frame_id = self.get_parameter('base_frame_id').value
@@ -125,6 +128,8 @@ class Controller(Node):
         self.create_subscription(Twist, 'controller/cmd_vel', self.cmd_vel_callback, 1)
         self.create_subscription(Twist, 'cmd_vel', self.app_cmd_vel_callback, 1)
         self.create_subscription(LaserScan, 'scan_raw', self.scan_callback, 1)
+        self.create_subscription(Imu, 'ros_robot_controller/imu_raw', self._imu_cb, 10)
+        self.buzzer_pub = self.create_publisher(BuzzerState, 'ros_robot_controller/set_buzzer', 1)
         self.create_service(Trigger, 'controller/load_calibrate_param', self.load_calibrate_param)
 
         # 安全保护参数
@@ -132,8 +137,15 @@ class Controller(Node):
         self.safety_stop_distance = self.get_parameter('safety_stop_distance').value
         self.safety_slow_distance = self.get_parameter('safety_slow_distance').value
         self.safety_forward_angle = self.get_parameter('safety_forward_angle').value
+        self.safety_side_angle = self.get_parameter('safety_side_angle').value
+        self.stall_angular_threshold = self.get_parameter('stall_angular_threshold').value
+        self.stall_detect_time = self.get_parameter('stall_detect_time').value
         self.front_distance = float('inf')
+        self.left_distance = float('inf')
+        self.right_distance = float('inf')
         self.scan_received = False
+        self._imu_az = 0.0
+        self._stall_since = None
 
         self.create_service(Trigger, '~/init_finish', self.get_node_state)
         self.get_logger().info('\033[1;32m%s\033[0m' % 'start')
@@ -176,34 +188,62 @@ class Controller(Node):
         pose.pose.covariance = ODOM_POSE_COVARIANCE
         self.pose_pub.publish(pose)
 
+    @staticmethod
+    def _angle_dist(a, center):
+        """角度到中心的角度差 (归一化到 [0, π])"""
+        d = abs(a - center)
+        while d > math.pi:
+            d = abs(d - 2 * math.pi)
+        return d
+
     def scan_callback(self, msg):
-        """Store minimum forward distance from LiDAR scan.
-           Note: LiDAR frame is rotated 180° vs base_link, so forward = angle ~π."""
+        """Store minimum forward/left/right distance from LiDAR scan.
+           Note: LiDAR frame is rotated 180° vs base_link, so forward = angle ~π.
+           逆时针扫描: 0°=车后, 90°=左, 180°=前, 270°=右."""
         if not msg.ranges:
             return
-        angle_rad = math.radians(self.safety_forward_angle)
-        min_dist = float('inf')
+        fwd_half = math.radians(self.safety_forward_angle)
+        side_half = math.radians(self.safety_side_angle)
+        min_f = float('inf')
+        min_l = float('inf')
+        min_r = float('inf')
         for i, r in enumerate(msg.ranges):
             if r <= msg.range_min or r >= msg.range_max:
                 continue
             angle = msg.angle_min + i * msg.angle_increment
-            # LiDAR 0° = robot back, forward = around π
-            forward_angle = abs(angle - math.pi)
-            # Normalize to [0, π]
-            while forward_angle > math.pi:
-                forward_angle = abs(forward_angle - 2 * math.pi)
-            if forward_angle <= angle_rad:
-                if r < min_dist:
-                    min_dist = r
-        self.front_distance = min_dist
+            if self._angle_dist(angle, math.pi) <= fwd_half and r < min_f:
+                min_f = r
+            if self._angle_dist(angle, math.pi / 2) <= side_half and r < min_l:
+                min_l = r
+            if self._angle_dist(angle, 3 * math.pi / 2) <= side_half and r < min_r:
+                min_r = r
+        self.front_distance = min_f
+        self.left_distance = min_l
+        self.right_distance = min_r
         self.scan_received = True
 
     def _check_safety(self, linear_x, linear_y, angular_z):
-        """Apply safety limits based on forward LiDAR distance.
-           Only limits forward movement; backward/lateral/rotation allowed."""
+        """Apply safety limits based on LiDAR distances.
+           Forward limited by front distance; rotation limited by turn-side distance."""
         if not self.safety_enabled or not self.scan_received:
             return linear_x, linear_y, angular_z
 
+        # 旋转方向碰撞检测: 左转(az>0)查左侧, 右转(az<0)查右侧
+        if angular_z != 0:
+            side = self.left_distance if angular_z > 0 else self.right_distance
+            if side < self.safety_stop_distance:
+                self.get_logger().warn(
+                    f'Rotate STOP: side={side:.2f}m az={angular_z:.2f}')
+                return linear_x, linear_y, 0.0
+            if side < self.safety_slow_distance:
+                factor = (side - self.safety_stop_distance) / \
+                         (self.safety_slow_distance - self.safety_stop_distance)
+                factor = max(0.0, min(1.0, factor))
+                self.get_logger().info(
+                    f'Rotate SLOW: side={side:.2f}m factor={factor:.2f}')
+                return linear_x, linear_y, angular_z * factor
+
+        # 前进方向 (原有逻辑)
         fd = self.front_distance
         if fd > self.safety_slow_distance or linear_x <= 0:
             return linear_x, linear_y, angular_z
@@ -224,6 +264,32 @@ class Controller(Node):
 
         return linear_x, linear_y, angular_z
 
+    # ── 旋转堵转检测 (麦轮被卡/打滑: 指令在转但 IMU 角速度≈0) ──
+
+    def _imu_cb(self, msg: Imu):
+        self._imu_az = msg.angular_velocity.z
+
+    def _check_stall(self):
+        if self.angular_z == 0:
+            self._stall_since = None
+            return
+        if abs(self._imu_az) < self.stall_angular_threshold:
+            if self._stall_since is None:
+                self._stall_since = time.time()
+            elif time.time() - self._stall_since > self.stall_detect_time:
+                self.get_logger().warn(
+                    f'Rotation stall detected (imu_az={self._imu_az:.3f}) — stopped')
+                self.angular_z = 0.0
+                self._stall_since = None
+                # 立即停车 + 蜂鸣提示
+                speeds = self.mecanum.set_velocity(
+                    self.linear_x, self.linear_y, 0.0)
+                self.motor_pub.publish(speeds)
+                buz = BuzzerState(freq=500, on_time=0.1, off_time=0.05, repeat=2)
+                self.buzzer_pub.publish(buz)
+        else:
+            self._stall_since = None
+
     def app_cmd_vel_callback(self, msg):
         if msg.linear.x > 0.2:
             msg.linear.x = 0.2
@@ -233,10 +299,10 @@ class Controller(Node):
             msg.linear.y = 0.2
         if msg.linear.y < -0.2:
             msg.linear.y = -0.2
-        if msg.angular.z > 0.5:
-            msg.angular.z = 0.5
-        if msg.angular.z < -0.5:
-            msg.angular.z = -0.5
+        if msg.angular.z > 0.6:
+            msg.angular.z = 0.6
+        if msg.angular.z < -0.6:
+            msg.angular.z = -0.6
         self.cmd_vel_callback(msg)
 
     def cmd_vel_callback(self, msg):
@@ -253,6 +319,7 @@ class Controller(Node):
     def cal_odom_fun(self):
         while True:
             self.current_time = time.time()
+            self._check_stall()  # 旋转堵转检测 (20Hz)
             if self.last_time is None:
                 self.dt = 0.0
             else:

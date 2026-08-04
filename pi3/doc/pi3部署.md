@@ -149,5 +149,6 @@ mv ~/pi3_ws/pi3_install ~/pi3_ws/install
 
 ## 📝 变更记录
 
+- **2026-08-04 (v0.10.0)**: 全向碰撞检测（前/左/右三扇区，旋转按转向侧 STOP 0.15m / SLOW 0.30m）；旋转堵转检测（IMU 角速度 <0.08rad/s 持续 1s → 停车+蜂鸣，参数 stall_angular_threshold/stall_detect_time/safety_side_angle）；app_cmd_vel angular 限幅 0.5→0.6
 - **2026-08-01**: controller_manager float() 防御(修 int position 崩溃); 舵机脉冲硬限幅 312-688
 - **2026-07-29 (v0.9.9)**: 舵机限幅 ±45°、LiDAR 防撞保护、pi3_stop.sh
