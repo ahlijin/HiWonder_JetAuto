@@ -1,239 +1,129 @@
-# HiWonder JetAuto：Pi3 + Jetson 双机版
+# HiWonder JetAuto：Pi3 底盘控制（双机方案的底层）
 
-这是一个基于 HiWonder JetAuto 思路整理的 **Pi3 + Jetson 双机协同 ROS2 项目**。
+这是一个基于 HiWonder JetAuto 思路整理的 **Pi3 + Jetson 双机协同 ROS2 项目**，本仓库现在**只保留 Pi3 侧（底层控制）**。
 
-- **Pi3** 负责底层控制、基础传感器与硬件接口
-- **Jetson** 负责感知、SLAM、导航以及更高算力需求的功能
+- **Pi3**（本仓库）：底盘运动控制（Mecanum 轮运动学 + 里程计）、舵机、控制板通信（电机 / IMU / 按键 / 电池）、激光雷达接入、机器人模型与 TF、接收上层 `/cmd_vel` 指令
+- **Jetson**（姊妹仓库 [HiJetson](http://192.168.3.96:3000/legend/HiJetson)）：感知、语音、SLAM、导航、RViz 可视化等上层能力
 
-项目目标是把底层运动控制与上层算法能力拆分到两台设备上，形成更清晰、稳定的系统结构。
+> 历史上这里是"Pi3 + Jetson 双机"仓库（含 `jetson/` 目录）。`jetson/` 已于 0.9.7 移除，
+> Jetson 侧代码迁至 **HiJetson** 仓库（早期单板版本保留在其 `lite` 分支）。
 
----
+## 硬件分工
 
-## 项目框架
+| 设备 | 职责 |
+|------|------|
+| **Pi3**（底层控制层） | 底盘控制 (Mecanum)、总线舵机、IMU / 按键 / 电池采集、LiDAR 接入、模型描述 / TF、接收 `cmd_vel` |
+| **Jetson**（上层计算层） | 深度相机、语音交互、激光 SLAM 建图定位、Nav2 导航、RViz、唤醒后整车旋转等感知决策类任务 |
 
-### 总体分工
-
-#### Pi3：底层控制层
-
-Pi3 侧主要承担机器人运行所需的基础能力：
-
-- 底盘控制（Mecanum 轮运动学 + 里程计）
-- 舵机与控制板通信（转向舵机）
-- IMU / 按键 / 电池等基础状态采集
-- 激光雷达接入与转发
-- 机器人模型描述与 TF 发布
-- 接收手柄 / 键盘 / 来自 Jetson 的 `/cmd_vel` 控制指令
-- 对上提供 `/scan`、`/odom`、控制接口等底层能力
-
-#### Jetson：上层计算层
-
-Jetson 侧主要承担计算密集型和感知决策类任务：
-
-- 激光雷达数据接收与滤波
-- 深度相机接入
-- 激光 SLAM 建图与定位
-- 导航与路径规划
-- RViz 可视化
-- 键盘控制小车移动（Jetson 侧遥操作）
-- 舵机转向控制
-- 视觉检测 / 语音等扩展能力
-
----
+两侧通过同一 ROS2 DDS 环境协同（`ROS_DOMAIN_ID=42`），无需额外中间件。
 
 ## 目录结构
 
 ```text
 .
 ├─ pi3/
-│  ├─ pi3_start.sh
-│  ├─ src/
-│  └─ doc/
-├─ jetson/
-│  ├─ jetson_start.sh          # 无界面 SLAM 启动（ssh 用）
-│  ├─ jetson_slam.sh           # 桌面 SLAM 启动（含 RViz + 地图保存）
-│  ├─ jetson_navigation.sh     # 导航启动
-│  ├─ jetson_rviz.sh           # 独立 RViz 启动
-│  ├─ jetson_teleop.sh         # Jetson 侧键盘控制
+│  ├─ pi3_start.sh               # Pi3 启动脚本（source ROS + workspace → bringup launch）
+│  ├─ doc/
+│  │  ├─ pi3部署.md               # Ubuntu 22.04 部署指南（ROS2 源/依赖/udev/固定设备名）
+│  │  └─ ubuntu22.04.5系统优化.md
 │  └─ src/
-├─ Changelog/
-│  ├─ 0.9.0.md
-│  ├─ 0.9.1.md
-│  ├─ 0.9.2.md
-│  ├─ 0.9.3.md
-│  ├─ 0.9.4.md
-│  ├─ 0.9.5.md
-│  └─ 0.9.6.md
+│     ├─ bringup/                # Pi3 整体启动（startup_check 等）
+│     ├─ controller/             # 底盘控制：Mecanum 运动学 + 里程计（odom_publisher_node）
+│     ├─ ros_robot_controller/   # 控制板通信（电机 / 舵机 / IMU / 按键 / 电池）
+│     ├─ ros_robot_controller_msgs/
+│     ├─ servo_controller/       # 总线舵机控制（controller_manager / bus_servo_control）
+│     ├─ sllidar_ros2/           # 激光雷达驱动（Git submodule）
+│     ├─ jetauto_description/    # URDF 模型 + STL + RViz 配置
+│     ├─ peripherals/            # 手柄 / 键盘遥控
+│     ├─ calibration/            # 线速度 / 角速度标定
+│     ├─ imu_calib/              # IMU 标定（C++，Eigen）
+│     └─ interfaces/             # 自定义消息与服务定义
+├─ Changelog/                    # 版本日志（最新 0.10.0）
+├─ CLAUDE.md                     # CC 项目上下文
 └─ README.md
+```
 
----
+## Pi3 侧功能说明
 
-## 功能说明
+- `bringup/`：Pi3 整体启动编排（`pi3_bringup.launch.py`、`startup_check` 开机自检 + 提示音）
+- `controller/`：底盘控制核心 —— Mecanum 运动学解算、里程计发布、碰撞/堵转保护（`odom_publisher_node.py`）
+- `ros_robot_controller/`：与 STM32 控制板串口通信，收发电机、总线舵机、IMU、按键、电池、蜂鸣器、LED
+- `servo_controller/`：总线舵机管理（`controller_manager` 接收 `ServosPosition` 并下发到控制板，回发 `joint_states` / `servo_states`）
+- `sllidar_ros2/`：A1 激光雷达 ROS2 驱动（发布 `/scan`）
+- `jetauto_description/`：机器人 URDF/STL 与 TF
+- `peripherals/`：手柄（`joystick_control`）与键盘（`teleop_key_control`）遥控
+- `calibration/`、`imu_calib/`：线/角速度标定与 IMU 标定
 
-### Pi3 侧功能
+## 接口一览（Pi3 侧）
 
-`pi3/` 用作机器人底层能力工作区，重点是稳定驱动与硬件控制，主要包括：
+| Topic | 类型 | 方向 | 说明 |
+|-------|------|------|------|
+| `/cmd_vel` | Twist | **Jetson → Pi3** | 上层速度指令（语音、唤醒旋转、导航） |
+| `/controller/cmd_vel` | Twist | 本地 → Pi3 | 手柄 / 键盘 / 标定脚本的本地指令 |
+| `/servo_controller` | ServosPosition | **Jetson → Pi3** | 总线舵机脉冲指令（限幅 312-688，±45°） |
+| `/odom` | Odometry | Pi3 → 上层 | 里程计 |
+| `/scan` | LaserScan | Pi3 → 上层 | 激光雷达（驱动发布，底盘侧也订阅 `scan_raw` 做碰撞检测） |
+| `/ros_robot_controller/imu_raw` | Imu | Pi3 内部 | IMU 原始数据（旋转堵转检测用） |
+| `/ros_robot_controller/set_motor` | MotorsState | Pi3 内部 | 电机指令 |
+| `/ros_robot_controller/bus_servo/set_position` | ServosPosition | Pi3 内部 | 总线舵机下发 |
+| `/ros_robot_controller/set_buzzer` | BuzzerState | 双向 | 蜂鸣器（开机提示音 / 堵转报警） |
+| `/set_pose`、`/set_odom` | PoseWithCovarianceStamped / Pose2D | — | 位姿重置 / 里程计重置 |
 
-- `bringup/`：Pi3 侧整体启动组织
-- `controller/`：底盘控制（Mecanum 运动学、里程计发布）
-- `ros_robot_controller/`：控制板通信与状态收发（电机、舵机、IMU、按键）
-- `sllidar_ros2/`：激光雷达 ROS2 驱动
-- `jetauto_description/`：机器人模型、URDF、STL 模型文件
-- `servo_controller/`：舵机控制器（转向舵机管理）
-- `interfaces/`、`ros_robot_controller_msgs/`：消息与服务定义
-- `calibration/`、`imu_calib/`：标定与调试相关功能
-- `peripherals/`：外设支持（手柄控制、键盘控制、IMU TF 广播）
+## 最新能力（v0.10.0）
 
-Pi3 侧的核心定位是：
+- **全向碰撞检测**（`odom_publisher_node.py`）
+  - 三扇区距离：前方（π±30°）、左侧（90°±30°）、右侧（270°±30°）
+  - 旋转时只查转向侧（左转查左、右转查右），另一侧不误伤
+  - 0.15 m 停转 / 0.30 m 减速，与前进碰撞同阈值逻辑；参数 `safety_side_angle`（默认 30°）
+- **旋转堵转检测**（麦轮被卡/打滑）
+  - 订阅 IMU 角速度 z，旋转指令下持续 < `stall_angular_threshold`(0.08 rad/s) 达 `stall_detect_time`(1.0 s) → 停车 + 蜂鸣
+  - 20 Hz 轮询，无旋转指令时不检测
+- 此前修复：总线舵机脉冲**硬限幅 312-688**（物理 ±45°）、`controller_manager` int/float 防御、开机提示音 DDS 异步写丢失、舵机使能
+- `angular` 限幅 0.5 → **0.6**（配合 Jetson 侧 `rotate_gain=0.6`，唤醒整车旋转速度加倍）
 
-- 提供稳定的运动与传感器基础接口
-- 尽量减少对高层算法的依赖
-- 作为双机系统中的硬件控制基线
-
-### Jetson 侧功能
-
-`jetson/` 用作上层计算工作区，负责接入 Pi3 的底层数据并实现更复杂的功能，主要包括：
-
-- `jetauto_peripherals/`：Jetson 侧外设接入（深度相机 launch、键盘遥控、舵机控制）
-- `slam/`：SLAM 启动、配置、建图相关资源
-- `navigation/`：导航、定位、参数与可视化配置
-- `orbbec_ws/`：Orbbec 深度相机驱动（Git submodule）
-- `interfaces/`、`ros_robot_controller_msgs/`：复用的接口定义
-
-Jetson 侧当前重点能力包括：
-
-- 接收并利用 Pi3 提供的基础状态与雷达数据
-- 使用激光雷达 + SLAM Toolbox 完成建图
-- 键盘控制小车移动、舵机转向控制
-- 深度相机环境感知
-- 导航与路径规划
-- 提供 RViz 可视化与上层扩展能力
-
----
-
-## 双机协同方式
-
-本项目采用双机分层架构：
-
-1. **Pi3 负责底层实时控制与基础传感器接入**
-2. **Jetson 负责高层感知、建图、导航与扩展功能**
-3. 两侧通过统一的 ROS2 通信环境（`ROS_DOMAIN_ID=42`）协同工作
-
-这样的结构有几个直接好处：
-
-- 降低上层算法变化对底层控制稳定性的影响
-- 让高算力任务集中在 Jetson 侧执行
-- 保持底层控制链路和上层感知链路职责清晰
-
----
-
-## 启动方式
-
-### Pi3 启动
+## 构建
 
 ```bash
+source /opt/ros/humble/setup.bash
+
+# 在 Pi3 上原生编译（推荐，确保 ABI）
 cd ~/pi3_ws
-./pi3_start.sh
+colcon build --symlink-install
+
+# 交叉/远端编译后部署：不要用 --symlink-install（symlink 指向本机路径，scp 后失效），
+# 需重新编译出无 symlink 的 install 再整体拷贝，或直接在 Pi3 上编译
 ```
 
-### Jetson 启动
+## 运行
 
 ```bash
-cd ~/jetson_ws
-
-# SLAM 建图（后台，适合 ssh）
-./jetson_start.sh
-
-# SLAM 建图（桌面，含 RViz）
-./jetson_slam.sh
-
-# 键盘控制小车移动
-./jetson_teleop.sh
-
-# 舵机控制
-ros2 run jetauto_peripherals servo_control <servo_id> <position>
-
-# 导航
-./jetson_navigation.sh
+# Pi3 上
+cd ~/pi3_ws && source install/setup.bash
+./pi3_start.sh              # 内部: source ROS + install → ros2 launch bringup pi3_bringup.launch.py
 ```
 
----
+`pi3_start.sh` 会设置 `ROS_DOMAIN_ID=42`，需与 Jetson 侧一致才能互通。
 
-## ROS 依赖库
-
-### Pi3 侧依赖
-
-以下为 Pi3 侧 `apt` 安装的 ROS 依赖包：
+## ROS 依赖
 
 | 包名 | 用途 |
 |------|------|
 | `rclpy` / `rclcpp` | ROS2 Python / C++ 客户端库 |
-| `sensor_msgs` | 传感器消息类型（LaserScan、Imu 等） |
-| `std_msgs` / `std_srvs` | 标准消息与服务 |
-| `geometry_msgs` | 几何消息类型（Pose、Twist 等） |
-| `nav_msgs` | 导航消息类型（Odometry 等） |
+| `sensor_msgs` / `nav_msgs` / `geometry_msgs` / `std_msgs` / `std_srvs` | 消息类型 |
 | `tf2` / `tf2_msgs` / `tf2_ros` | TF 坐标系变换 |
-| `robot_state_publisher` | 发布机器人模型 TF |
-| `joint_state_publisher` | 关节状态发布 |
-| `urdf` / `xacro` | URDF 模型解析与宏预处理 |
-| `rosidl_default_generators` / `rosidl_default_runtime` | 消息/服务接口代码生成 |
-| `launch` / `launch_ros` | Launch 启动框架 |
-| `ament_index_python` | 包路径查找 |
+| `robot_state_publisher` / `joint_state_publisher` / `urdf` / `xacro` | 模型与关节状态 |
+| `rosidl_default_generators` / `rosidl_default_runtime` | 自定义消息/服务代码生成 |
+| `launch` / `launch_ros` / `ament_index_python` | Launch 框架 |
+| `libeigen3-dev` / `libyaml-cpp-dev`（系统） | imu_calib 依赖 |
+| `python3-serial`（系统） | 控制板串口通信 |
 
-系统级依赖：
+> 详细安装步骤（国内 ROS 源、依赖清单、udev 固定设备名 `/dev/lidar`、`/dev/rrc`）见 [pi3/doc/pi3部署.md](pi3/doc/pi3部署.md)。
 
-| 包名 | 用途 |
-|------|------|
-| `libeigen3-dev` | 线性代数库（imu_calib） |
-| `libyaml-cpp-dev` | YAML 解析库（imu_calib） |
+## 注意
 
-### Jetson 侧依赖
+- `pi3/src/sllidar_ros2` 是 Git submodule，地址指向 **github**（`Slamtec/sllidar_ros2`）；本地 gitea 上**没有**该仓库镜像，克隆后需自行 `git submodule update --init` 或手动放入源码
+- Jetson 侧代码不在本仓库，请访问 [HiJetson](http://192.168.3.96:3000/legend/HiJetson)（单板早期版本见其 `lite` 分支）
 
-Jetson 侧除 Pi3 侧大部分基础包外，额外需要：
+## 更新日志
 
-| 包名 | 用途 |
-|------|------|
-| `slam_toolbox` | 激光 SLAM 建图与定位 |
-| `laser_filters` | 激光雷达数据过滤（角度/距离滤波） |
-| `rtabmap_slam` / `rtabmap_sync` | RTAB-Map 建图与 RGBD 同步 |
-| `nav2_bringup` / `nav2_controller` | Nav2 导航框架 |
-| `nav2_planner` / `nav2_navigation` | 导航规划与执行 |
-| `nav2_bt_navigator` / `nav2_localization` | 行为树导航与定位 |
-| `camera_info_manager` | 相机信息管理 |
-| `cv_bridge` | ROS ↔ OpenCV 图像桥接 |
-| `image_geometry` / `image_publisher` / `image_transport` | 图像处理与传输 |
-| `rclcpp_components` | 组件节点加载 |
-| `class_loader` | 动态类加载 |
-| `message_filters` | 消息时间同步 |
-| `tf2_sensor_msgs` | 传感器点云 TF 变换 |
-| `control_msgs` | 轨迹控制消息（FollowJointTrajectory） |
-
-> 注：`astra_camera`（Orbbec 深度相机驱动）为源码包，通过 Git submodule 引入，
-> 位于 `jetson/src/orbbec_ws/`，非 `apt` 安装。
-
----
-
-## 当前能力概览
-
-当前仓库围绕以下方向组织：
-
-- 双机 ROS2 协同
-- 底盘与舵机控制
-- 激光雷达接入与滤波
-- 深度相机接入
-- 机器人模型与描述
-- SLAM 建图
-- 导航与定位
-- Jetson 侧键盘控制与舵机遥控
-- RViz 可视化
-- 视觉 AI 扩展
-- 语音功能扩展
-
-更新日志请查看：
-
-- `Changelog/0.9.0.md`
-- `Changelog/0.9.1.md`
-- `Changelog/0.9.2.md`
-- `Changelog/0.9.3.md`
-- `Changelog/0.9.4.md`
-- `Changelog/0.9.5.md`
-- `Changelog/0.9.6.md`
+见 [Changelog/](Changelog/) ，最新为 **0.10.0**（2026-08-04）。
