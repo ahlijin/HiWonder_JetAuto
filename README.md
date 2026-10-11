@@ -121,7 +121,7 @@ cd ~/pi3_ws && source install/setup.bash
 
 ## 注意
 
-- `pi3/src/sllidar_ros2` 是 Git submodule，地址指向 **github**（`Slamtec/sllidar_ros2`）；本地 gitea 上**没有**该仓库镜像，克隆后需自行 `git submodule update --init` 或手动放入源码
+- `pi3/src/sllidar_ros2` 是 Git submodule，来源为本地 gitea 镜像 `legend/sllidar_ros2`；用 `git clone --recurse-submodules` 或 `git submodule update --init --recursive` 拉取
 - Jetson 侧代码不在本仓库，请访问 [HiJetson](http://192.168.3.96:3000/legend/HiJetson)（单板早期版本见其 `lite` 分支）
 
 ## 更新日志

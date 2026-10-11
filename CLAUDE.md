@@ -8,7 +8,7 @@
 ## 仓库
 - origin: http://192.168.3.96:3000/legend/HiWonder_JetAuto.git （本地 gitea，NAS 与 github 在线仓库已弃用）
 - 本地 clone: `/opt/data/code/HiWonder_JetAuto`（Pi5）
-- 子模块 `pi3/src/sllidar_ros2` 地址指向 github（gitea 无镜像），仓库内仅有空占位目录
+- 子模块 `pi3/src/sllidar_ros2` = legend/sllidar_ros2（gitea 镜像，只读）
 
 ## 硬件分工
 | 设备 | 职责 |
