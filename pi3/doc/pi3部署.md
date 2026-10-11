@@ -103,19 +103,19 @@
 ### 编译（开发机 = 宿主机 Pi5 的 my-ros 容器）
 
 > 编译环境是宿主机(Pi5)上的 docker 容器 `my-ros`(ROS2 humble + colcon, aarch64)。
-> 源码在 NAS 上, 直接挂载; 编译产物输出到宿主机本地目录, **勿写回 NAS**。
+> 源码取自本地 clone (gitea), 直接挂载; 编译产物输出到宿主机本地目录。
 
 ```bash
 docker run --rm \
-  -v /home/pi/nas/code/HiWonder_JetAuto/pi3:/ws \
+  -v /home/pi/hermes-data/code/HiWonder_JetAuto/pi3:/ws \
   -v /home/pi/hermes-data/pi3build:/out \
   my-ros bash -c 'source /opt/ros/humble/setup.bash && cd /ws/src && \
   colcon --log-base /out/log build --build-base /out/build --install-base /out/install'
 ```
 
 **要点:**
-- `docker -v` 挂载的是**宿主机路径**(NAS=/home/pi/nas), 不是容器内 /workspace
-- 源码只读挂载; 产物输出到 /out(=宿主机 /home/pi/hermes-data, 即 Hermes 容器 /opt/data)
+- `docker -v` 挂载的是**宿主机路径**(Hermes 容器内 `/opt/data` 即宿主机 `/home/pi/hermes-data`), 不是容器内 /workspace
+- 源码只读挂载; 产物输出到 /out(=宿主机本地目录)
 - **不能用 --symlink-install**: 部署靠 scp, 软连接会失效
 - 架构必须与 Pi3 一致(aarch64)
 
