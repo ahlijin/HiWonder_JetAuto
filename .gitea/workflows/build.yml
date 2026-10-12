@@ -15,8 +15,9 @@ jobs:
       - name: Build in ros-dev
         run: |
           cd /tmp/ws
+          ls -al
           docker run --rm \
             -v $PWD:/ws \
             -w /ws \
             my-ros \
-            bash -c "source /opt/ros/humble/setup.bash && colcon build"
+            bash -c "ls -al && source /opt/ros/humble/setup.bash && colcon build"
