@@ -1,4 +1,4 @@
-name: Build
+name: ROS Build
 on: [push]
 
 jobs:
@@ -7,17 +7,17 @@ jobs:
     steps:
       - name: Clone
         run: |
-          rm -rf /tmp/ws
-          git clone http://192.168.3.96:3000/legend/HiWonder_JetAuto.git /tmp/ws
-          cd /tmp/ws
+          rm -rf /data/ws
+          git clone http://192.168.3.96:3000/legend/HiWonder_JetAuto /data/ws
+          cd /data/ws
+          git fetch origin ${{ github.ref_name }}
           git checkout ${{ github.sha }}
+          git submodule update --init --recursive
 
-      - name: Build in ros-dev
+      - name: Build
         run: |
-          cd /tmp/ws
-          ls -al
           docker run --rm \
-            -v $PWD:/ws \
+            -v /home/pi/runner-data/ws:/ws \
             -w /ws \
-            my-ros \
-            bash -c "ls -al && source /opt/ros/humble/setup.bash && colcon build"
+            my-ros:latest \
+            bash -c "source /opt/ros/humble/setup.bash && colcon build"
