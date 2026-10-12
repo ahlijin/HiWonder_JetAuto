@@ -1,13 +1,20 @@
-name: Build ROS
+name: Build
 on: [push]
 
 jobs:
   build:
     runs-on: pi5
     steps:
-      - uses: actions/checkout@v4
+      - name: Clone
+        run: |
+          rm -rf /tmp/ws
+          git clone http://192.168.3.96:3000/legend/HiWonder_JetAuto.git /tmp/ws
+          cd /tmp/ws
+          git checkout ${{ github.sha }}
+
       - name: Build in ros-dev
         run: |
+          cd /tmp/ws
           docker run --rm \
             -v $PWD:/ws \
             -w /ws \
