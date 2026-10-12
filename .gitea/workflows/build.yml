@@ -19,4 +19,4 @@ jobs:
             -v $PWD:/ws \
             -w /ws \
             my-ros \
-            bash -c "source /opt/ros/humble/setup.bash && colcon build"
+            bash -c "source /opt/ros/humble/setup.bash && cd src && colcon build"
