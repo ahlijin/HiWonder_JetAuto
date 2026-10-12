@@ -6,9 +6,10 @@
 > Jetson 侧代码已迁移至 [HiJetson](http://192.168.3.96:3000/legend/HiJetson) 仓库（单板早期版本见其 `lite` 分支）。
 
 ## 仓库
-- origin: http://192.168.3.96:3000/legend/HiWonder_JetAuto.git （本地 gitea，NAS 与 github 在线仓库已弃用）
-- 本地 clone: `/opt/data/code/HiWonder_JetAuto`（Pi5）
-- 子模块 `pi3/src/sllidar_ros2` = legend/sllidar_ros2（gitea 镜像，只读）
+- origin: ssh://git@192.168.3.96:2222/legend/HiWonder_JetAuto.git（Web/API 同机 http://192.168.3.96:3000/legend/HiWonder_JetAuto；NAS 与 github 在线仓库已弃用）
+- 本地 clone: `/workspace/HiWonder_JetAuto`（Pi5 宿主 `/home/pi/workspace/HiWonder_JetAuto`）
+- 子模块 `src/sllidar_ros2` = legend/sllidar_ros2（gitea 镜像，只读，pin `34300099`）
+- CI: 推送自动编译 `.gitea/workflows/build.yml`（gitea-runner，runs-on pi5，容器 `my-ros:latest`）
 
 ## 硬件分工
 | 设备 | 职责 |
@@ -18,21 +19,21 @@
 ## 项目结构
 ```
 HiWonder_JetAuto/
-├── pi3/                              # Pi3 工作空间
-│   ├── pi3_start.sh                  # 启动脚本
-│   └── src/
-│       ├── bringup/                  # 整体启动
-│       ├── controller/               # 底盘控制 (Mecanum 运动学 + 里程计)
-│       ├── ros_robot_controller/     # 控制板通信 (电机/舵机/IMU/按键)
-│       ├── sllidar_ros2/            # 激光雷达驱动
-│       ├── jetauto_description/      # URDF 模型 + STL
-│       ├── servo_controller/         # 舵机控制
-│       ├── calibration/             # 标定相关
-│       ├── imu_calib/               # IMU 标定 (C++, Eigen)
-│       ├── peripherals/             # 手柄/键盘/IMU TF
-│       ├── ros_robot_controller_msgs/ # 控制板消息定义
-│       └── interfaces/              # 消息与服务定义
-├── pi3/doc/                          # 部署指南与系统优化文档
+├── src/                              # ROS2 工作空间 (11 个包, 直接在仓库根)
+│   ├── bringup/                      # 整体启动
+│   ├── controller/                   # 底盘控制 (Mecanum 运动学 + 里程计)
+│   ├── ros_robot_controller/         # 控制板通信 (电机/舵机/IMU/按键)
+│   ├── sllidar_ros2/                 # 激光雷达驱动 (Git submodule)
+│   ├── jetauto_description/          # URDF 模型 + STL
+│   ├── servo_controller/             # 舵机控制
+│   ├── calibration/                  # 标定相关
+│   ├── imu_calib/                    # IMU 标定 (C++, Eigen)
+│   ├── peripherals/                  # 手柄/键盘/IMU TF
+│   ├── ros_robot_controller_msgs/    # 控制板消息定义
+│   └── interfaces/                   # 消息与服务定义
+├── scripts/                          # pi3_start.sh / pi3_stop.sh / udev 规则与安装脚本
+├── doc/                              # 部署指南与系统优化文档
+├── .gitea/workflows/build.yml        # CI: 推送自动编译
 └── Changelog/                        # 版本日志
 ```
 
@@ -45,34 +46,40 @@ HiWonder_JetAuto/
 
 ## 构建
 
-### 本地开发（Pi5，快速迭代）
+### 方式一：CI（推送自动编译，只验证能不能编过）
 ```bash
-source /opt/ros/humble/setup.bash
+git push     # → .gitea/workflows/build.yml → gitea-runner(runs-on pi5) → 容器 my-ros:latest 跑 colcon build
+```
+产物在 runner 那台的 `/home/pi/runner-data/ws`（runner 容器内 `/data/ws`），不上传 artifact；结果看 Gitea Actions 页。
 
-cd /opt/data/code/HiWonder_JetAuto/pi3
-colcon \
-  --log-base /opt/data/build/HiWonder_JetAuto/pi3/log \
-  build \
-  --symlink-install \
-  --build-base /opt/data/build/HiWonder_JetAuto/pi3/build \
-  --install-base /opt/data/build/HiWonder_JetAuto/pi3/install \
-  --cmake-args "-DCMAKE_C_COMPILER=/usr/bin/gcc" "-DCMAKE_CXX_COMPILER=/usr/bin/g++"
+### 方式二：开发机（Pi5 宿主）my-ros 容器（开发迭代用，2026-10 实测可用）
+```bash
+docker run --rm \
+  -v /home/pi/workspace/HiWonder_JetAuto:/ws \
+  -v /home/pi/hermes-data/pi3build:/out \
+  -w /ws \
+  my-ros:latest \
+  bash -c 'source /opt/ros/humble/setup.bash && \
+    colcon --log-base /out/log build --build-base /out/build --install-base /out/install'
+# 实测: 11 packages finished [1m 24s]
+# 挂载必须传宿主机路径: Hermes 容器内 /workspace = 宿主 /home/pi/workspace, /opt/data = 宿主 /home/pi/hermes-data
+# 工作空间根就是 /ws (目录扁平化后 src/ 在仓库根, 不再 cd /ws/src)
 ```
 
-### 部署到 Pi3（不带 symlink）
-部署包不含 symlink（symlink 指向本地路径，scp 到 Pi3 后失效），需重新编译。
+### 方式三：部署到 Pi3（不带 symlink）
+部署包不含 symlink（symlink 指向本地路径，scp 到 Pi3 后失效），需用**另一个产物目录**重编一次：
 ```bash
-source /opt/ros/humble/setup.bash
+docker run --rm \
+  -v /home/pi/workspace/HiWonder_JetAuto:/ws \
+  -v /home/pi/hermes-data/pi3build_deploy:/out \
+  -w /ws \
+  my-ros:latest \
+  bash -c 'source /opt/ros/humble/setup.bash && \
+    colcon --log-base /out/log build --build-base /out/build --install-base /out/install'
 
-cd /opt/data/code/HiWonder_JetAuto/pi3
-colcon \
-  --log-base /opt/data/build/HiWonder_JetAuto/pi3/build_deploy/log \
-  build \
-  --build-base /opt/data/build/HiWonder_JetAuto/pi3/build_deploy/build \
-  --install-base /opt/data/build/HiWonder_JetAuto/pi3/build_deploy/install \
-  --cmake-args "-DCMAKE_C_COMPILER=/usr/bin/gcc" "-DCMAKE_CXX_COMPILER=/usr/bin/g++"
-
-scp -r /opt/data/build/HiWonder_JetAuto/pi3/build_deploy/install pi@<pi3-ip>:/home/pi/pi3_ws/
+# 产物在宿主机 /home/pi/hermes-data/pi3build_deploy/install (Hermes 容器 /opt/data/pi3build_deploy/install)
+scp -r /home/pi/hermes-data/pi3build_deploy/install pi@192.168.3.64:~/pi3_ws/pi3_install
+# scp 目录到已存在的 ~/pi3_ws/ 会生成 pi3_ws/pi3_install, 需手动 mv 成 install (见 doc/pi3部署.md)
 ```
 
 也可直接在 Pi3 上编译（推荐，确保原生 ABI）：
@@ -86,7 +93,8 @@ colcon build
 ## 在 Pi3 上运行
 ```bash
 cd ~/pi3_ws && source install/setup.bash
-./pi3_start.sh
+./pi3_start.sh          # 仓库里的副本: scripts/pi3_start.sh, 改动后需 scp 到 Pi3 的 ~/pi3_ws/
+                      # 停止: scripts/pi3_stop.sh (pkill 全部节点)
 ```
 
 ## ROS 依赖
@@ -98,7 +106,7 @@ cd ~/pi3_ws && source install/setup.bash
 每天工作结束时执行：
 ```bash
 # 1. 查看当天 git 变更
-cd /opt/data/code/HiWonder_JetAuto
+cd /workspace/HiWonder_JetAuto
 git diff --stat
 
 # 2. 确定新版本号 (当前最大版本 + 0.0.1)

@@ -55,7 +55,7 @@
 - **目的**：让雷达固定为 `/dev/lidar`，控制板固定为 `/dev/rrc`，不随 USB 插口变化。
 - **命令**：
   ```bash
-  cd ~/pi3_ws/..
+  cd <仓库>/scripts        # scripts/ 下同时放着 create_udev_rules.sh 和 *.rules
   ./create_udev_rules.sh
   ```
 - **重新插拔雷达与控制板的 USB 线**，验证：
@@ -98,23 +98,30 @@
 
 ---
 
-## 🔧 编译与部署（最新流程 2026-08）
+## 🔧 编译与部署（最新流程 2026-10）
 
 ### 编译（开发机 = 宿主机 Pi5 的 my-ros 容器）
 
-> 编译环境是宿主机(Pi5)上的 docker 容器 `my-ros`(ROS2 humble + colcon, aarch64)。
-> 源码取自本地 clone (gitea), 直接挂载; 编译产物输出到宿主机本地目录。
+> 编译环境是宿主机(Pi5)上的 docker 容器 `my-ros:latest`(ROS2 humble + colcon, aarch64)。
+> 源码取自本地 clone (gitea, 现在在 `/workspace`), 直接挂载; 编译产物输出到宿主机本地目录。
+> 另一条路是 CI: 推送后 `.gitea/workflows/build.yml` 自动在 gitea-runner 里跑同样的 colcon build,
+> 但**只验证能不能编过**(产物落在 runner 的 `/home/pi/runner-data/ws`, 不上传), 部署仍走这里。
 
 ```bash
 docker run --rm \
-  -v /home/pi/hermes-data/code/HiWonder_JetAuto/pi3:/ws \
+  -v /home/pi/workspace/HiWonder_JetAuto:/ws \
   -v /home/pi/hermes-data/pi3build:/out \
-  my-ros bash -c 'source /opt/ros/humble/setup.bash && cd /ws/src && \
-  colcon --log-base /out/log build --build-base /out/build --install-base /out/install'
+  -w /ws \
+  my-ros:latest \
+  bash -c 'source /opt/ros/humble/setup.bash && \
+    colcon --log-base /out/log build --build-base /out/build --install-base /out/install'
+# 实测 2026-10-12: 11 packages finished [1m 24s]
 ```
 
 **要点:**
-- `docker -v` 挂载的是**宿主机路径**(Hermes 容器内 `/opt/data` 即宿主机 `/home/pi/hermes-data`), 不是容器内 /workspace
+- `docker -v` 挂载的是**宿主机路径**: Hermes 容器中的 `/workspace` = 宿主 `/home/pi/workspace`(代码),
+  Hermes 容器中的 `/opt/data` = 宿主 `/home/pi/hermes-data`(产物)
+- 目录扁平化后源码就在仓库根的 `src/`(原 `pi3/src`), 所以**工作空间根 = `/ws`**, 不再 `cd /ws/src`
 - 源码只读挂载; 产物输出到 /out(=宿主机本地目录)
 - **不能用 --symlink-install**: 部署靠 scp, 软连接会失效
 - 架构必须与 Pi3 一致(aarch64)
@@ -122,8 +129,8 @@ docker run --rm \
 ### 部署（install → Pi3）
 
 ```bash
-# 编译产物在 Hermes 容器 /opt/data/pi3build/install
-scp -r /tmp/pi3_install pi@192.168.3.64:~/pi3_ws/
+# 编译产物在 Hermes 容器 /opt/data/pi3build_deploy/install (= 宿主 /home/pi/hermes-data/pi3build_deploy/install)
+scp -r /home/pi/hermes-data/pi3build_deploy/install pi@192.168.3.64:~/pi3_ws/pi3_install
 ```
 
 **注意**: `scp -r 目录 host:~/pi3_ws/` 当目标目录已存在时, 会创建 `~/pi3_ws/pi3_install`
@@ -149,6 +156,7 @@ mv ~/pi3_ws/pi3_install ~/pi3_ws/install
 
 ## 📝 变更记录
 
+- **2026-10-12 (v0.10.1)**: 目录扁平化后的文档与路径同步(`pi3/{src,scripts,doc}` → `src`/`scripts`/`doc`); 代码位置改为 `/workspace/HiWonder_JetAuto`(宿主 `/home/pi/workspace`), 编译命令改为在 `/ws` 里 build; `sllidar_ros2` 子模块路径修复为 `src/sllidar_ros2`
 - **2026-08-04 (v0.10.0)**: 全向碰撞检测（前/左/右三扇区，旋转按转向侧 STOP 0.15m / SLOW 0.30m）；旋转堵转检测（IMU 角速度 <0.08rad/s 持续 1s → 停车+蜂鸣，参数 stall_angular_threshold/stall_detect_time/safety_side_angle）；app_cmd_vel angular 限幅 0.5→0.6
 - **2026-08-01**: controller_manager float() 防御(修 int position 崩溃); 舵机脉冲硬限幅 312-688
 - **2026-07-29 (v0.9.9)**: 舵机限幅 ±45°、LiDAR 防撞保护、pi3_stop.sh

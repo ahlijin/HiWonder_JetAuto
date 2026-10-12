@@ -21,27 +21,27 @@
 
 ```text
 .
-├─ pi3/
-│  ├─ pi3_start.sh               # Pi3 启动脚本（source ROS + workspace → bringup launch）
-│  ├─ doc/
-│  │  ├─ pi3部署.md               # Ubuntu 22.04 部署指南（ROS2 源/依赖/udev/固定设备名）
-│  │  └─ ubuntu22.04.5系统优化.md
-│  └─ src/
-│     ├─ bringup/                # Pi3 整体启动（startup_check 等）
-│     ├─ controller/             # 底盘控制：Mecanum 运动学 + 里程计（odom_publisher_node）
-│     ├─ ros_robot_controller/   # 控制板通信（电机 / 舵机 / IMU / 按键 / 电池）
-│     ├─ ros_robot_controller_msgs/
-│     ├─ servo_controller/       # 总线舵机控制（controller_manager / bus_servo_control）
-│     ├─ sllidar_ros2/           # 激光雷达驱动（Git submodule）
-│     ├─ jetauto_description/    # URDF 模型 + STL + RViz 配置
-│     ├─ peripherals/            # 手柄 / 键盘遥控
-│     ├─ calibration/            # 线速度 / 角速度标定
-│     ├─ imu_calib/              # IMU 标定（C++，Eigen）
-│     └─ interfaces/             # 自定义消息与服务定义
-├─ Changelog/                    # 版本日志（最新 0.10.0）
+├─ src/                          # ROS2 工作空间源码（11 个包，直接在仓库根）
+│  ├─ bringup/                   # Pi3 整体启动（startup_check 等）
+│  ├─ controller/                # 底盘控制：Mecanum 运动学 + 里程计（odom_publisher_node）
+│  ├─ ros_robot_controller/      # 控制板通信（电机 / 舵机 / IMU / 按键 / 电池）
+│  ├─ ros_robot_controller_msgs/
+│  ├─ servo_controller/          # 总线舵机控制（controller_manager / bus_servo_control）
+│  ├─ sllidar_ros2/              # 激光雷达驱动（Git submodule → legend/sllidar_ros2）
+│  ├─ jetauto_description/       # URDF 模型 + STL + RViz 配置
+│  ├─ peripherals/               # 手柄 / 键盘遥控（含 sllidar_a1.launch.py）
+│  ├─ calibration/               # 线速度 / 角速度标定
+│  ├─ imu_calib/                 # IMU 标定（C++，Eigen）
+│  └─ interfaces/                # 自定义消息与服务定义
+├─ scripts/                      # pi3_start.sh / pi3_stop.sh / udev 规则与安装脚本
+├─ doc/                          # pi3部署.md / ubuntu22.04.5系统优化.md
+├─ .gitea/workflows/build.yml    # 推送后自动编译（gitea-runner，runs-on pi5）
+├─ Changelog/                    # 版本日志（最新 0.10.1）
 ├─ CLAUDE.md                     # CC 项目上下文
 └─ README.md
 ```
+
+> 目录已扁平化（0.9.10 起）：原 `pi3/src`、`pi3/scripts`、`pi3/doc` 上移为仓库根的 `src/`、`scripts/`、`doc/`。
 
 ## Pi3 侧功能说明
 
@@ -83,15 +83,35 @@
 
 ## 构建
 
+**方式一：推送后自动编译（CI，只验证能不能编过）**
+
+```bash
+git push     # 触发 .gitea/workflows/build.yml → gitea-runner(runs-on pi5) → 容器 my-ros:latest 里 colcon build
+```
+
+产物落在 runner 那台的 `/home/pi/runner-data/ws`（runner 容器内 `/data/ws`），**不上传 artifact**；编译结果看 Gitea 的 Actions 页。
+
+**方式二：开发机（Pi5 宿主）my-ros 容器里编（开发迭代用，实测可用）**
+
+```bash
+docker run --rm \
+  -v /home/pi/workspace/HiWonder_JetAuto:/ws \
+  -v /home/pi/hermes-data/pi3build:/out \
+  -w /ws \
+  my-ros:latest \
+  bash -c 'source /opt/ros/humble/setup.bash && \
+    colcon --log-base /out/log build --build-base /out/build --install-base /out/install'
+# 实测: 11 packages finished [1m 24s]
+# 挂载必须传宿主机路径: Hermes 容器内 /workspace = 宿主 /home/pi/workspace, /opt/data = 宿主 /home/pi/hermes-data
+```
+
+**方式三：在 Pi3 上原生编译（部署用，推荐，确保 ABI）**
+
 ```bash
 source /opt/ros/humble/setup.bash
-
-# 在 Pi3 上原生编译（推荐，确保 ABI）
 cd ~/pi3_ws
-colcon build --symlink-install
-
-# 交叉/远端编译后部署：不要用 --symlink-install（symlink 指向本机路径，scp 后失效），
-# 需重新编译出无 symlink 的 install 再整体拷贝，或直接在 Pi3 上编译
+colcon build
+# 部署不要用 --symlink-install（symlink 指向本机路径，scp 后失效）
 ```
 
 ## 运行
@@ -101,6 +121,8 @@ colcon build --symlink-install
 cd ~/pi3_ws && source install/setup.bash
 ./pi3_start.sh              # 内部: source ROS + install → ros2 launch bringup pi3_bringup.launch.py
 ```
+
+启动脚本在仓库里的副本是 `scripts/pi3_start.sh`（`scripts/pi3_stop.sh` 停全部节点），改动后需 scp 到 Pi3 的 `~/pi3_ws/`。
 
 `pi3_start.sh` 会设置 `ROS_DOMAIN_ID=42`，需与 Jetson 侧一致才能互通。
 
@@ -117,13 +139,13 @@ cd ~/pi3_ws && source install/setup.bash
 | `libeigen3-dev` / `libyaml-cpp-dev`（系统） | imu_calib 依赖 |
 | `python3-serial`（系统） | 控制板串口通信 |
 
-> 详细安装步骤（国内 ROS 源、依赖清单、udev 固定设备名 `/dev/lidar`、`/dev/rrc`）见 [pi3/doc/pi3部署.md](pi3/doc/pi3部署.md)。
+> 详细安装步骤（国内 ROS 源、依赖清单、udev 固定设备名 `/dev/lidar`、`/dev/rrc`）见 [doc/pi3部署.md](doc/pi3部署.md)。
 
 ## 注意
 
-- `pi3/src/sllidar_ros2` 是 Git submodule，来源为本地 gitea 镜像 `legend/sllidar_ros2`；用 `git clone --recurse-submodules` 或 `git submodule update --init --recursive` 拉取
+- `src/sllidar_ros2` 是 Git submodule，来源为本地 gitea 镜像 `legend/sllidar_ros2`（pin `34300099`）；用 `git clone --recurse-submodules` 或 `git submodule update --init --recursive` 拉取
 - Jetson 侧代码不在本仓库，请访问 [HiJetson](http://192.168.3.96:3000/legend/HiJetson)（单板早期版本见其 `lite` 分支）
 
 ## 更新日志
 
-见 [Changelog/](Changelog/) ，最新为 **0.10.0**（2026-08-04）。
+见 [Changelog/](Changelog/) ，最新为 **0.10.1**（2026-10-12）。
