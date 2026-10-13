@@ -50,7 +50,7 @@ HiWonder_JetAuto/
 ```bash
 git push     # → .gitea/workflows/deploy-pi3.yml → gitea-runner(runs-on pi5) → 容器 my-ros:latest 跑 colcon build
              # → 打包 install + scripts/pi3_start.sh + scripts/pi3_stop.sh
-             # → ssh/scp pi@192.168.3.64: 停节点 → 替换 ~/pi3_ws/install → 起回 pi3_start.sh → 校验进程
+             # → ssh/scp pi@192.168.3.64: 解到 .staging 并校验 → 停节点 → 原子替换 install(旧版留 install.old) → 起回 pi3_start.sh → 校验进程
 git push origin v0.10.2   # 打 tag → release.yml → 建 Release 并上传 jetauto-vX.X.X.tar.gz（含 install + 启动脚本）
 ```
 编译产物在 runner 那台的 `/home/pi/runner-data/ws`（runner 容器内 `/data/ws`）；部署无需 sudo（`~/pi3_ws` 属 pi）。

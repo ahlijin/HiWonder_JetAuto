@@ -6,6 +6,7 @@ on:
 jobs:
   build-deploy:
     runs-on: pi5
+    timeout-minutes: 20
     steps:
       - name: Clone
         run: |
@@ -32,19 +33,28 @@ jobs:
             -C /data/ws/scripts pi3_start.sh pi3_stop.sh
           ls -lh /tmp/jetauto-deploy.tar.gz
 
+      # 先传到 Pi3 并解到暂存目录；此时设备跑的还是旧代码，下载/解包/校验任何一步失败都不影响设备
+      - name: Stage on Pi3
+        run: |
+          SSH="ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64"
+          scp -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new /tmp/jetauto-deploy.tar.gz pi@192.168.3.64:/tmp/
+          $SSH "rm -rf ~/pi3_ws/.staging && mkdir -p ~/pi3_ws/.staging"
+          $SSH "tar xzf /tmp/jetauto-deploy.tar.gz -C ~/pi3_ws/.staging && rm -f /tmp/jetauto-deploy.tar.gz"
+          $SSH "test -f ~/pi3_ws/.staging/install/setup.bash && test -f ~/pi3_ws/.staging/pi3_start.sh && echo 'staging OK'"
+
       - name: Stop Pi3 nodes
         run: |
           ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "~/pi3_ws/pi3_stop.sh || true"
 
-      - name: Deploy to Pi3
+      # 原子替换: 旧 install 留成 install.old(回退用), mv 是同文件系统内的 rename, 不会出现"没有 install"的空窗
+      - name: Swap in new install
         run: |
-          ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "rm -rf ~/pi3_ws/install ~/pi3_ws/install.old"
-          scp -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new /tmp/jetauto-deploy.tar.gz pi@192.168.3.64:/tmp/
-          ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "tar xzf /tmp/jetauto-deploy.tar.gz -C ~/pi3_ws/ && rm -f /tmp/jetauto-deploy.tar.gz"
-          ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "chmod +x ~/pi3_ws/pi3_start.sh ~/pi3_ws/pi3_stop.sh"
+          SSH="ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64"
+          $SSH "cd ~/pi3_ws && rm -rf install.old && mv install install.old && mv .staging/install install && mv -f .staging/pi3_start.sh .staging/pi3_stop.sh . && rm -rf .staging && chmod +x pi3_start.sh pi3_stop.sh && echo 'swap done'"
 
       - name: Start Pi3 nodes
         run: |
-          ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "{ cd ~/pi3_ws && exec setsid nohup ./pi3_start.sh; } > ~/pi3_ws/pi3_run.log 2>&1 < /dev/null & echo started"
+          SSH="ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64"
+          $SSH "{ cd ~/pi3_ws && exec setsid nohup ./pi3_start.sh; } > ~/pi3_ws/pi3_run.log 2>&1 < /dev/null & echo started"
           sleep 10
-          ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "test -f ~/pi3_ws/install/setup.bash && pgrep -f 'pi3_[b]ringup' >/dev/null && echo 'pi3_ws/install OK, pi3_bringup RUNNING' || { echo 'Pi3 deploy verification FAILED'; ls -l ~/pi3_ws/install/setup.bash; tail -40 ~/pi3_ws/pi3_run.log; exit 1; }"
+          $SSH "test -f ~/pi3_ws/install/setup.bash && pgrep -f 'pi3_[b]ringup' >/dev/null && echo 'pi3_ws/install OK, pi3_bringup RUNNING' || { echo 'Pi3 deploy verification FAILED'; ls -l ~/pi3_ws/install/setup.bash; tail -40 ~/pi3_ws/pi3_run.log; echo '回退: ssh pi@192.168.3.64 \"cd ~/pi3_ws && rm -rf install && mv install.old install && ./pi3_start.sh\"'; exit 1; }"

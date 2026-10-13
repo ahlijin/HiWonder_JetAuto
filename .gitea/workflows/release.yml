@@ -7,6 +7,7 @@ on:
 jobs:
   release:
     runs-on: pi5
+    timeout-minutes: 30
     steps:
       - name: Clone
         run: |
@@ -71,11 +72,21 @@ jobs:
       - name: Upload Asset
         run: |
           VERSION=${{ github.ref_name }}
-          RELEASE_ID=$(curl -sSf "http://192.168.3.96:3000/api/v1/repos/legend/HiWonder_JetAuto/releases/tags/${VERSION}" \
-            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" | jq -r '.id')
+          NAME=jetauto-${VERSION}.tar.gz
+          API=http://192.168.3.96:3000/api/v1/repos/legend/HiWonder_JetAuto
+          TOKEN="${{ secrets.GITEA_TOKEN }}"
+          RELEASE_ID=$(curl -sSf "${API}/releases/tags/${VERSION}" \
+            -H "Authorization: token ${TOKEN}" | jq -r '.id')
           echo "Release ID: ${RELEASE_ID}"
-          curl -sSf -X POST "http://192.168.3.96:3000/api/v1/repos/legend/HiWonder_JetAuto/releases/${RELEASE_ID}/assets?name=jetauto-${VERSION}.tar.gz" \
-            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+          # 重跑同一个 tag 时，同名旧资产会残留（实测 Gitea 对同名上传不报错，会堆两份），先删掉保证幂等
+          for ASSET_ID in $(curl -sSf "${API}/releases/${RELEASE_ID}/assets" \
+            -H "Authorization: token ${TOKEN}" | jq -r --arg n "${NAME}" '.[] | select(.name==$n) | .id'); do
+            curl -sSf -X DELETE "${API}/releases/${RELEASE_ID}/assets/${ASSET_ID}" \
+              -H "Authorization: token ${TOKEN}"
+            echo "已删除同名旧资产 id=${ASSET_ID}"
+          done
+          curl -sSf -X POST "${API}/releases/${RELEASE_ID}/assets?name=${NAME}" \
+            -H "Authorization: token ${TOKEN}" \
             -H "Content-Type: application/octet-stream" \
-            --data-binary "@/tmp/jetauto-${VERSION}.tar.gz"
-          echo "上传完成"
+            --data-binary "@/tmp/${NAME}"
+          echo "上传完成 ${NAME}"

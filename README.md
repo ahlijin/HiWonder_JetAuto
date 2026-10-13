@@ -94,7 +94,8 @@ git push origin v0.10.2     # 打 tag → .gitea/workflows/release.yml → 建 R
 ```
 
 - 编译产物在 runner 那台的 `/home/pi/runner-data/ws`（runner 容器内 `/data/ws`），部署包由 CI 直接推到 Pi3（`pi@192.168.3.64`，runner 已配免密）
-- 每次推送 main 都会**停掉 Pi3 上正在跑的节点再重启**（`pi3_stop.sh` → 替换 install → `pi3_start.sh`），最后校验 `~/pi3_ws/install/setup.bash` 与 `pi3_bringup` 进程；结果看 Gitea Actions 页
+- 每次推送 main 都会**停掉 Pi3 上正在跑的节点再重启**：先把新包解到 `~/pi3_ws/.staging` 并校验，再 `pi3_stop.sh` → **原子替换** `install`（旧版本留成 `install.old`）→ `pi3_start.sh` → 校验 `~/pi3_ws/install/setup.bash` 与 `pi3_bringup` 进程；结果看 Gitea Actions 页
+- 部署中途失败不影响设备（新包没落盘校验通过之前不动线上 `install`）；起不来的话回退一条命令：`ssh pi@192.168.3.64 "cd ~/pi3_ws && rm -rf install && mv install.old install && ./pi3_start.sh"`
 - Release 资产为 `install/ + pi3_start.sh + pi3_stop.sh`，可用于手工部署
 - 手工部署（CI 不通时）见方式二/三 + [doc/pi3部署.md](doc/pi3部署.md)
 

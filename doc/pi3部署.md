@@ -136,17 +136,29 @@ docker run --rm \
 `deploy-pi3.yml` 里跑的完整序列（无需 sudo，`~/pi3_ws` 属 pi）：
 
 ```bash
-ssh pi@192.168.3.64 "~/pi3_ws/pi3_stop.sh || true"                  # 1. 停旧节点
-ssh pi@192.168.3.64 "rm -rf ~/pi3_ws/install ~/pi3_ws/install.old" # 2. 删旧 install
-scp jetauto-deploy.tar.gz pi@192.168.3.64:/tmp/                    # 3. 传包
-ssh pi@192.168.3.64 "tar xzf /tmp/jetauto-deploy.tar.gz -C ~/pi3_ws/ && rm -f /tmp/jetauto-deploy.tar.gz"
-ssh pi@192.168.3.64 "chmod +x ~/pi3_ws/pi3_start.sh ~/pi3_ws/pi3_stop.sh"
+# 1. 传包 + 解到暂存目录（这步失败完全不影响设备: 旧代码还在跑）
+scp jetauto-deploy.tar.gz pi@192.168.3.64:/tmp/
+ssh pi@192.168.3.64 "rm -rf ~/pi3_ws/.staging && mkdir -p ~/pi3_ws/.staging"
+ssh pi@192.168.3.64 "tar xzf /tmp/jetauto-deploy.tar.gz -C ~/pi3_ws/.staging && rm -f /tmp/jetauto-deploy.tar.gz"
+ssh pi@192.168.3.64 "test -f ~/pi3_ws/.staging/install/setup.bash && test -f ~/pi3_ws/.staging/pi3_start.sh"   # 解包完整性校验
+# 2. 停节点 → 原子换目录（mv 是同文件系统内的 rename, 不会出现"没有 install"的空窗; 旧版本留成 install.old）
+ssh pi@192.168.3.64 "~/pi3_ws/pi3_stop.sh || true"
+ssh pi@192.168.3.64 "cd ~/pi3_ws && rm -rf install.old && mv install install.old && mv .staging/install install \
+  && mv -f .staging/pi3_start.sh .staging/pi3_stop.sh . && rm -rf .staging && chmod +x pi3_start.sh pi3_stop.sh"
+# 3. 起节点 + 校验
 ssh pi@192.168.3.64 "{ cd ~/pi3_ws && exec setsid nohup ./pi3_start.sh; } > ~/pi3_ws/pi3_run.log 2>&1 < /dev/null &"
-ssh pi@192.168.3.64 "test -f ~/pi3_ws/install/setup.bash && pgrep -f 'pi3_[b]ringup'"   # 4. 校验
+ssh pi@192.168.3.64 "test -f ~/pi3_ws/install/setup.bash && pgrep -f 'pi3_[b]ringup'"
+```
+
+**回退**（新版本起不来时，一步退回上一份）：
+
+```bash
+ssh pi@192.168.3.64 "cd ~/pi3_ws && rm -rf install && mv install.old install && ./pi3_start.sh"
 ```
 
 - 包内容 = `install/` + `pi3_start.sh` + `pi3_stop.sh`（`tar czf out.tar.gz -C ws install -C ws/scripts pi3_start.sh pi3_stop.sh`，
-  解包到 `~/pi3_ws/` 正好落在 `install`、`pi3_start.sh`）
+  归档根就是 `install/` 与两个脚本，解到 `~/pi3_ws/.staging` 后 `mv` 到位）
+- **先暂存校验、再原子替换**：不要在设备上"先删旧 install 再解包"——解包一旦失败（磁盘满/包损坏）设备就没有 install 了，节点再也起不来
 - **必须用 `{ ...; } >log 2>&1 &` 包住整组命令**：若只重定向后台命令自身（`cd x && cmd >log 2>&1 &`），
   后台子 shell 仍持有 ssh 的 stdout 管道，ssh 会一直挂到超时（实测 rc=124）
 - 起节点后 `sleep 10` 再校验；失败时看 Pi3 上 `~/pi3_ws/pi3_run.log`
