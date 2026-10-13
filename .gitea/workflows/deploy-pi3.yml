@@ -1,0 +1,50 @@
+name: Build and Deploy Pi3 ROS
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-deploy:
+    runs-on: pi5
+    steps:
+      - name: Clone
+        run: |
+          rm -rf /data/ws
+          git clone http://192.168.3.96:3000/legend/HiWonder_JetAuto.git /data/ws
+          cd /data/ws
+          git fetch origin ${{ github.ref_name }}
+          git checkout ${{ github.sha }}
+          git submodule update --init --recursive
+
+      - name: Build ROS
+        run: |
+          docker run --rm \
+            -v /home/pi/runner-data/ws:/ws \
+            -w /ws \
+            my-ros:latest \
+            bash -c "source /opt/ros/humble/setup.bash && colcon build"
+
+      - name: Package
+        run: |
+          cd /data/ws
+          tar czf /tmp/jetauto-deploy.tar.gz \
+            -C /data/ws install \
+            -C /data/ws/scripts pi3_start.sh pi3_stop.sh
+          ls -lh /tmp/jetauto-deploy.tar.gz
+
+      - name: Stop Pi3 nodes
+        run: |
+          ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "~/pi3_ws/pi3_stop.sh || true"
+
+      - name: Deploy to Pi3
+        run: |
+          ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "rm -rf ~/pi3_ws/install ~/pi3_ws/install.old"
+          scp -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new /tmp/jetauto-deploy.tar.gz pi@192.168.3.64:/tmp/
+          ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "tar xzf /tmp/jetauto-deploy.tar.gz -C ~/pi3_ws/ && rm -f /tmp/jetauto-deploy.tar.gz"
+          ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "chmod +x ~/pi3_ws/pi3_start.sh ~/pi3_ws/pi3_stop.sh"
+
+      - name: Start Pi3 nodes
+        run: |
+          ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "{ cd ~/pi3_ws && exec setsid nohup ./pi3_start.sh; } > ~/pi3_ws/pi3_run.log 2>&1 < /dev/null & echo started"
+          sleep 10
+          ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new pi@192.168.3.64 "test -f ~/pi3_ws/install/setup.bash && pgrep -f 'pi3_[b]ringup' >/dev/null && echo 'pi3_ws/install OK, pi3_bringup RUNNING' || { echo 'Pi3 deploy verification FAILED'; ls -l ~/pi3_ws/install/setup.bash; tail -40 ~/pi3_ws/pi3_run.log; exit 1; }"

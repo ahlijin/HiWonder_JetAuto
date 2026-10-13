@@ -104,8 +104,11 @@
 
 > 编译环境是宿主机(Pi5)上的 docker 容器 `my-ros:latest`(ROS2 humble + colcon, aarch64)。
 > 源码取自本地 clone (gitea, 现在在 `/workspace`), 直接挂载; 编译产物输出到宿主机本地目录。
-> 另一条路是 CI: 推送后 `.gitea/workflows/build.yml` 自动在 gitea-runner 里跑同样的 colcon build,
-> 但**只验证能不能编过**(产物落在 runner 的 `/home/pi/runner-data/ws`, 不上传), 部署仍走这里。
+> **CI（2026-10 起, 日常走这条)**: 推送 main → `.gitea/workflows/deploy-pi3.yml` 在 gitea-runner 里
+> colcon build → 打包 `install + pi3_start.sh + pi3_stop.sh` → ssh/scp 到 Pi3(`pi@192.168.3.64`, runner 已配免密)
+> → 停旧节点 → 替换 `~/pi3_ws/install` → 重启 `pi3_start.sh` → 校验 `install/setup.bash` 与 `pi3_bringup` 进程。
+> 打 tag `v*` → `.gitea/workflows/release.yml` 建 Release 并上传 `jetauto-vX.X.X.tar.gz`(同样内容)。
+> 下面的手工编译/部署只在 CI 不可用时用。
 
 ```bash
 docker run --rm \
@@ -127,6 +130,29 @@ docker run --rm \
 - 架构必须与 Pi3 一致(aarch64)
 
 ### 部署（install → Pi3）
+
+#### 方式 A：CI 自动部署（推荐，2026-10 起）
+
+`deploy-pi3.yml` 里跑的完整序列（无需 sudo，`~/pi3_ws` 属 pi）：
+
+```bash
+ssh pi@192.168.3.64 "~/pi3_ws/pi3_stop.sh || true"                  # 1. 停旧节点
+ssh pi@192.168.3.64 "rm -rf ~/pi3_ws/install ~/pi3_ws/install.old" # 2. 删旧 install
+scp jetauto-deploy.tar.gz pi@192.168.3.64:/tmp/                    # 3. 传包
+ssh pi@192.168.3.64 "tar xzf /tmp/jetauto-deploy.tar.gz -C ~/pi3_ws/ && rm -f /tmp/jetauto-deploy.tar.gz"
+ssh pi@192.168.3.64 "chmod +x ~/pi3_ws/pi3_start.sh ~/pi3_ws/pi3_stop.sh"
+ssh pi@192.168.3.64 "{ cd ~/pi3_ws && exec setsid nohup ./pi3_start.sh; } > ~/pi3_ws/pi3_run.log 2>&1 < /dev/null &"
+ssh pi@192.168.3.64 "test -f ~/pi3_ws/install/setup.bash && pgrep -f 'pi3_[b]ringup'"   # 4. 校验
+```
+
+- 包内容 = `install/` + `pi3_start.sh` + `pi3_stop.sh`（`tar czf out.tar.gz -C ws install -C ws/scripts pi3_start.sh pi3_stop.sh`，
+  解包到 `~/pi3_ws/` 正好落在 `install`、`pi3_start.sh`）
+- **必须用 `{ ...; } >log 2>&1 &` 包住整组命令**：若只重定向后台命令自身（`cd x && cmd >log 2>&1 &`），
+  后台子 shell 仍持有 ssh 的 stdout 管道，ssh 会一直挂到超时（实测 rc=124）
+- 起节点后 `sleep 10` 再校验；失败时看 Pi3 上 `~/pi3_ws/pi3_run.log`
+- 用 `pgrep -f 'pi3_[b]ringup'`（方括号写法）避免 ssh 自身命令行被匹配到
+
+#### 方式 B：手工 scp（CI 不可用时）
 
 ```bash
 # 编译产物在 Hermes 容器 /opt/data/pi3build_deploy/install (= 宿主 /home/pi/hermes-data/pi3build_deploy/install)
@@ -156,6 +182,7 @@ mv ~/pi3_ws/pi3_install ~/pi3_ws/install
 
 ## 📝 变更记录
 
+- **2026-10-13**: CI 补齐自动部署与发布 —— `.gitea/workflows/deploy-pi3.yml`(推送 main: colcon build → 打包 `install`+启动脚本 → scp 到 Pi3 → 停旧节点/替换 install/重启 → 校验进程)、`.gitea/workflows/release.yml`(打 tag `v*`: 建 Release + 上传 `jetauto-vX.X.X.tar.gz`); 原 `build.yml`(仅编译) 删除
 - **2026-10-12 (v0.10.1)**: 目录扁平化后的文档与路径同步(`pi3/{src,scripts,doc}` → `src`/`scripts`/`doc`); 代码位置改为 `/workspace/HiWonder_JetAuto`(宿主 `/home/pi/workspace`), 编译命令改为在 `/ws` 里 build; `sllidar_ros2` 子模块路径修复为 `src/sllidar_ros2`
 - **2026-08-04 (v0.10.0)**: 全向碰撞检测（前/左/右三扇区，旋转按转向侧 STOP 0.15m / SLOW 0.30m）；旋转堵转检测（IMU 角速度 <0.08rad/s 持续 1s → 停车+蜂鸣，参数 stall_angular_threshold/stall_detect_time/safety_side_angle）；app_cmd_vel angular 限幅 0.5→0.6
 - **2026-08-01**: controller_manager float() 防御(修 int position 崩溃); 舵机脉冲硬限幅 312-688

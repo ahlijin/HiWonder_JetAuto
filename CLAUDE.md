@@ -9,7 +9,7 @@
 - origin: ssh://git@192.168.3.96:2222/legend/HiWonder_JetAuto.git（Web/API 同机 http://192.168.3.96:3000/legend/HiWonder_JetAuto；NAS 与 github 在线仓库已弃用）
 - 本地 clone: `/workspace/HiWonder_JetAuto`（Pi5 宿主 `/home/pi/workspace/HiWonder_JetAuto`）
 - 子模块 `src/sllidar_ros2` = legend/sllidar_ros2（gitea 镜像，只读，pin `34300099`）
-- CI: 推送自动编译 `.gitea/workflows/build.yml`（gitea-runner，runs-on pi5，容器 `my-ros:latest`）
+- CI: 推送 main 自动编译 + 部署 `.gitea/workflows/deploy-pi3.yml`（gitea-runner，runs-on pi5，容器 `my-ros:latest` → scp 到 Pi3 → 重启 pi3_start.sh）；打 tag `v*` 触发 `.gitea/workflows/release.yml` 建 Release 并上传 `jetauto-vX.tar.gz`
 
 ## 硬件分工
 | 设备 | 职责 |
@@ -33,7 +33,7 @@ HiWonder_JetAuto/
 │   └── interfaces/                   # 消息与服务定义
 ├── scripts/                          # pi3_start.sh / pi3_stop.sh / udev 规则与安装脚本
 ├── doc/                              # 部署指南与系统优化文档
-├── .gitea/workflows/build.yml        # CI: 推送自动编译
+├── .gitea/workflows/                 # CI: deploy-pi3.yml(推送 main 编译+部署) / release.yml(打 tag 出 Release)
 └── Changelog/                        # 版本日志
 ```
 
@@ -46,11 +46,15 @@ HiWonder_JetAuto/
 
 ## 构建
 
-### 方式一：CI（推送自动编译，只验证能不能编过）
+### 方式一：CI（推送 main 自动编译 + 部署到 Pi3，2026-10 起）
 ```bash
-git push     # → .gitea/workflows/build.yml → gitea-runner(runs-on pi5) → 容器 my-ros:latest 跑 colcon build
+git push     # → .gitea/workflows/deploy-pi3.yml → gitea-runner(runs-on pi5) → 容器 my-ros:latest 跑 colcon build
+             # → 打包 install + scripts/pi3_start.sh + scripts/pi3_stop.sh
+             # → ssh/scp pi@192.168.3.64: 停节点 → 替换 ~/pi3_ws/install → 起回 pi3_start.sh → 校验进程
+git push origin v0.10.2   # 打 tag → release.yml → 建 Release 并上传 jetauto-vX.X.X.tar.gz（含 install + 启动脚本）
 ```
-产物在 runner 那台的 `/home/pi/runner-data/ws`（runner 容器内 `/data/ws`），不上传 artifact；结果看 Gitea Actions 页。
+编译产物在 runner 那台的 `/home/pi/runner-data/ws`（runner 容器内 `/data/ws`）；部署无需 sudo（`~/pi3_ws` 属 pi）。
+每次推送 main 会**重启 Pi3 上正在跑的节点**，结果看 Gitea Actions 页。
 
 ### 方式二：开发机（Pi5 宿主）my-ros 容器（开发迭代用，2026-10 实测可用）
 ```bash

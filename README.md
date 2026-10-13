@@ -35,7 +35,7 @@
 │  └─ interfaces/                # 自定义消息与服务定义
 ├─ scripts/                      # pi3_start.sh / pi3_stop.sh / udev 规则与安装脚本
 ├─ doc/                          # pi3部署.md / ubuntu22.04.5系统优化.md
-├─ .gitea/workflows/build.yml    # 推送后自动编译（gitea-runner，runs-on pi5）
+├─ .gitea/workflows/             # CI: deploy-pi3.yml（推送 main 编译+部署）/ release.yml（打 tag 出 Release）
 ├─ Changelog/                    # 版本日志（最新 0.10.1）
 ├─ CLAUDE.md                     # CC 项目上下文
 └─ README.md
@@ -83,13 +83,20 @@
 
 ## 构建
 
-**方式一：推送后自动编译（CI，只验证能不能编过）**
+**方式一：推送自动编译 + 部署到 Pi3（CI，2026-10 起）**
 
 ```bash
-git push     # 触发 .gitea/workflows/build.yml → gitea-runner(runs-on pi5) → 容器 my-ros:latest 里 colcon build
+git push                    # main 分支 → .gitea/workflows/deploy-pi3.yml → gitea-runner(runs-on pi5)
+                            #  1) my-ros:latest 容器里 colcon build
+                            #  2) 打包 install + pi3_start.sh/pi3_stop.sh
+                            #  3) ssh/scp 到 Pi3: 停节点 → 替换 ~/pi3_ws/install → 重启 pi3_start.sh
+git push origin v0.10.2     # 打 tag → .gitea/workflows/release.yml → 建 Release + 上传 jetauto-vX.X.X.tar.gz
 ```
 
-产物落在 runner 那台的 `/home/pi/runner-data/ws`（runner 容器内 `/data/ws`），**不上传 artifact**；编译结果看 Gitea 的 Actions 页。
+- 编译产物在 runner 那台的 `/home/pi/runner-data/ws`（runner 容器内 `/data/ws`），部署包由 CI 直接推到 Pi3（`pi@192.168.3.64`，runner 已配免密）
+- 每次推送 main 都会**停掉 Pi3 上正在跑的节点再重启**（`pi3_stop.sh` → 替换 install → `pi3_start.sh`），最后校验 `~/pi3_ws/install/setup.bash` 与 `pi3_bringup` 进程；结果看 Gitea Actions 页
+- Release 资产为 `install/ + pi3_start.sh + pi3_stop.sh`，可用于手工部署
+- 手工部署（CI 不通时）见方式二/三 + [doc/pi3部署.md](doc/pi3部署.md)
 
 **方式二：开发机（Pi5 宿主）my-ros 容器里编（开发迭代用，实测可用）**
 
@@ -122,7 +129,7 @@ cd ~/pi3_ws && source install/setup.bash
 ./pi3_start.sh              # 内部: source ROS + install → ros2 launch bringup pi3_bringup.launch.py
 ```
 
-启动脚本在仓库里的副本是 `scripts/pi3_start.sh`（`scripts/pi3_stop.sh` 停全部节点），改动后需 scp 到 Pi3 的 `~/pi3_ws/`。
+启动脚本在仓库里的副本是 `scripts/pi3_start.sh`（`scripts/pi3_stop.sh` 停全部节点），CI 部署时会随 `install/` 一起同步到 Pi3 的 `~/pi3_ws/`。
 
 `pi3_start.sh` 会设置 `ROS_DOMAIN_ID=42`，需与 Jetson 侧一致才能互通。
 

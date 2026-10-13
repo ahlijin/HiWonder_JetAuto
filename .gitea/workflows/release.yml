@@ -1,0 +1,81 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: pi5
+    steps:
+      - name: Clone
+        run: |
+          rm -rf /data/ws
+          git clone http://192.168.3.96:3000/legend/HiWonder_JetAuto.git /data/ws
+          cd /data/ws
+          git fetch origin --tags
+          git checkout ${{ github.ref_name }}
+          git submodule update --init --recursive
+
+      - name: Build ROS with version
+        run: |
+          VERSION=${{ github.ref_name }}
+          docker run --rm \
+            -v /home/pi/runner-data/ws:/ws \
+            -w /ws \
+            -e APP_VERSION=${VERSION} \
+            my-ros:latest \
+            bash -c "source /opt/ros/humble/setup.bash && colcon build"
+
+      - name: Package
+        run: |
+          VERSION=${{ github.ref_name }}
+          cd /data/ws
+          tar czf /tmp/jetauto-${VERSION}.tar.gz \
+            -C /data/ws install \
+            -C /data/ws/scripts pi3_start.sh pi3_stop.sh
+          ls -lh /tmp/jetauto-${VERSION}.tar.gz
+
+      - name: Create Release
+        run: |
+          VERSION=${{ github.ref_name }}
+          # 1. 检查 Release 是否已存在
+          EXISTING=$(curl -sSf "http://192.168.3.96:3000/api/v1/repos/legend/HiWonder_JetAuto/releases/tags/${VERSION}" \
+            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" 2>/dev/null | jq -r '.id' || echo "")
+          
+          if [ -n "$EXISTING" ] && [ "$EXISTING" != "null" ]; then
+            echo "Release ${VERSION} 已存在，跳过创建"
+            exit 0
+          fi
+          
+          # 2. 判断是否为预发布
+          PRERELEASE=false
+          case "${VERSION}" in
+            *-alpha*|*-beta*|*-rc*) PRERELEASE=true ;;
+          esac
+          echo "prerelease=${PRERELEASE}"
+
+          # 3. 创建 Release
+          curl -sSf -X POST "http://192.168.3.96:3000/api/v1/repos/legend/HiWonder_JetAuto/releases" \
+            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"tag_name\": \"${VERSION}\",
+              \"name\": \"${VERSION}\",
+              \"target_commitish\": \"${{ github.sha }}\",
+              \"prerelease\": ${PRERELEASE},
+              \"body\": \"Release ${VERSION}\"
+            }"
+          echo "Release 创建成功"
+
+      - name: Upload Asset
+        run: |
+          VERSION=${{ github.ref_name }}
+          RELEASE_ID=$(curl -sSf "http://192.168.3.96:3000/api/v1/repos/legend/HiWonder_JetAuto/releases/tags/${VERSION}" \
+            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" | jq -r '.id')
+          echo "Release ID: ${RELEASE_ID}"
+          curl -sSf -X POST "http://192.168.3.96:3000/api/v1/repos/legend/HiWonder_JetAuto/releases/${RELEASE_ID}/assets?name=jetauto-${VERSION}.tar.gz" \
+            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary "@/tmp/jetauto-${VERSION}.tar.gz"
+          echo "上传完成"
